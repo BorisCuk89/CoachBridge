@@ -1,7 +1,12 @@
 import React from 'react';
 import {View, Text, Button, StyleSheet} from 'react-native';
+import {useSelector, useDispatch} from 'react-redux';
+import {RootState} from '../store/store';
 
 const WelcomeScreen = ({navigation}: any) => {
+  const dispatch = useDispatch();
+  const {isAuthenticated, user} = useSelector((state: RootState) => state.auth);
+  console.log('isAuthenticate ', isAuthenticated);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to CoachBridge</Text>
