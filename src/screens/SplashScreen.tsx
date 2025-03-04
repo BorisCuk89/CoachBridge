@@ -1,17 +1,29 @@
 import React, {useEffect} from 'react';
 import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
-const SplashScreen = ({navigation}: any) => {
+const SplashScreen = () => {
+  const navigation = useNavigation(); // ✅ Sada koristimo useNavigation()
+
   useEffect(() => {
-    setTimeout(() => {
-      navigation.replace('Welcome');
-    }, 2000); // Simulacija učitavanja 2 sekunde
-  }, []);
+    const timeout = setTimeout(() => {
+      if (navigation && navigation.reset) {
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'Welcome'}],
+        });
+      } else {
+        console.log('⚠️ Navigation object is not ready yet.');
+      }
+    }, 2000);
+
+    return () => clearTimeout(timeout); // Čisti timeout ako se komponenta unmountuje
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color="#0000ff" />
-      <Text style={styles.text}>Loading...</Text>
+      <Text>Učitavanje...</Text>
     </View>
   );
 };
