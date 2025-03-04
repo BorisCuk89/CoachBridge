@@ -4,82 +4,59 @@ import {
   Text,
   FlatList,
   TextInput,
-  StyleSheet,
-  Image,
   TouchableOpacity,
-  Button,
+  Image,
+  StyleSheet,
 } from 'react-native';
-import {useDispatch} from 'react-redux';
-import {logoutUser} from '../store/auth/authSlice';
 
 const API_URL = 'http://localhost:5001/api/trainers';
 
 const HomeScreen = ({navigation}) => {
   const [trainers, setTrainers] = useState([]);
   const [search, setSearch] = useState('');
-  const [filteredTrainers, setFilteredTrainers] = useState([]);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchTrainers();
-  }, []);
-
-  const handleLogout = async () => {
-    await dispatch(logoutUser() as any); // ⏳ Sačekaj da Redux resetuje stanje
-    navigation.reset({
-      index: 0,
-      routes: [{name: 'Welcome'}],
-    });
-  };
+  }, [search]);
 
   const fetchTrainers = async () => {
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(`${API_URL}?search=${search}`);
       const data = await response.json();
       setTrainers(data);
-      setFilteredTrainers(data);
     } catch (error) {
-      console.error('Greška pri učitavanju trenera:', error);
+      console.error('❌ Greška pri dohvatanju trenera', error);
     }
   };
-
-  // Pretraga trenera
-  const handleSearch = text => {
-    setSearch(text);
-    const filtered = trainers.filter(trainer =>
-      trainer.name.toLowerCase().includes(text.toLowerCase()),
-    );
-    setFilteredTrainers(filtered);
-  };
-
-  const renderTrainer = ({item}) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate('TrainerProfile', {trainer: item})}>
-      <Image source={{uri: item.image}} style={styles.avatar} />
-      <View style={styles.info}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text numberOfLines={2} style={styles.description}>
-          {item.description}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
       <TextInput
-        style={styles.searchBar}
+        style={styles.searchInput}
         placeholder="Pretraži trenere..."
         value={search}
-        onChangeText={handleSearch}
+        onChangeText={setSearch}
       />
-      <Button title="Odjavi se" onPress={handleLogout} />
+
       <FlatList
-        data={filteredTrainers}
-        keyExtractor={item => item.id}
-        renderItem={renderTrainer}
+        data={trainers}
+        keyExtractor={item => item._id}
+        renderItem={({item}) => (
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() =>
+              navigation.navigate('TrainerProfile', {trainer: item})
+            }>
+            <Image source={{uri: item.profileImage}} style={styles.image} />
+            <View style={styles.info}>
+              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.title}>{item.title}</Text>
+              <Text numberOfLines={2} style={styles.description}>
+                {item.description}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
       />
     </View>
   );
@@ -90,29 +67,34 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 100,
   },
-  searchBar: {
+  searchInput: {
     borderWidth: 1,
     padding: 10,
-    borderRadius: 8,
     marginBottom: 10,
+    borderRadius: 8,
   },
   card: {
     flexDirection: 'row',
-    padding: 10,
-    backgroundColor: '#fff',
-    marginBottom: 10,
+    padding: 12,
+    borderWidth: 1,
     borderRadius: 8,
-    elevation: 2,
+    marginBottom: 10,
+    alignItems: 'center',
+    width: 350,
   },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  image: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 10,
   },
   info: {
-    marginLeft: 10,
+    flex: 1,
   },
   name: {
     fontSize: 16,

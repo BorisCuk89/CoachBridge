@@ -9,6 +9,7 @@ import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
+import TrainerProfileScreen from '../screens/TrainerProfileScreen';
 
 const Stack = createStackNavigator();
 
@@ -36,7 +37,13 @@ const AppNavigator = () => {
         {loading ? (
           <Stack.Screen name="Splash" component={SplashScreen} />
         ) : isAuthenticated ? (
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen
+              name="TrainerProfile"
+              component={TrainerProfileScreen}
+            />
+          </>
         ) : (
           <>
             <Stack.Screen name="Welcome" component={WelcomeScreen} />

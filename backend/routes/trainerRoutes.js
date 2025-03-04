@@ -4,9 +4,29 @@ const Trainer = require('../models/Trainer');
 const router = express.Router();
 
 // Dohvati sve trenere
-router.get('/trainers', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const trainers = await Trainer.find().sort({rating: -1}); // Sortiraj po oceni
+    const {search, sortByRating, page = 1, limit = 10} = req.query;
+
+    let query = {};
+
+    // Filtriraj po imenu ili tituli
+    if (search) {
+      query.$or = [
+        {name: {$regex: search, $options: 'i'}},
+        {title: {$regex: search, $options: 'i'}},
+      ];
+    }
+
+    // Sortiraj po oceni (ako je zahtevano)
+    const sortOption = sortByRating ? {rating: -1} : {};
+
+    // Paginacija
+    const trainers = await Trainer.find(query)
+      .sort(sortOption)
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
+
     res.json(trainers);
   } catch (err) {
     res.status(500).json({msg: 'Server error'});
