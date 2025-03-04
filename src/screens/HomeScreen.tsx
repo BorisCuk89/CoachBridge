@@ -5,8 +5,12 @@ import {
   FlatList,
   StyleSheet,
   ActivityIndicator,
+  Button,
 } from 'react-native';
+import {useDispatch} from 'react-redux';
 import TrainerCard from '../components/TrainerCard';
+import {logoutUser} from '../store/auth/authSlice';
+import {useNavigation} from '@react-navigation/native';
 
 const API_URL = 'http://localhost:5001/api/trainers';
 
@@ -14,6 +18,16 @@ const HomeScreen = () => {
   const [trainers, setTrainers] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+
+  const handleLogout = async () => {
+    await dispatch(logoutUser() as any); // ⏳ Sačekaj da Redux resetuje stanje
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'Welcome'}],
+    });
+  };
 
   useEffect(() => {
     fetchTrainers();
@@ -39,6 +53,8 @@ const HomeScreen = () => {
         value={search}
         onChangeText={setSearch}
       />
+
+      <Button title="Odjavi se" onPress={() => dispatch(logoutUser() as any)} />
 
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
