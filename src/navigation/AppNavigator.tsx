@@ -10,6 +10,8 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
 import TrainerProfileScreen from '../screens/TrainerProfileScreen';
+import TrainerDashboardScreen from '../screens/TrainerDashboardScreen';
+import AddPackageScreen from '../screens/AddPackageScreen';
 
 const Stack = createStackNavigator();
 
@@ -43,6 +45,11 @@ const AppNavigator = () => {
               name="TrainerProfile"
               component={TrainerProfileScreen}
             />
+            <Stack.Screen
+              name="TrainerDashboard"
+              component={TrainerDashboardScreen}
+            />
+            <Stack.Screen name="AddPackage" component={AddPackageScreen} />
           </>
         ) : (
           <>

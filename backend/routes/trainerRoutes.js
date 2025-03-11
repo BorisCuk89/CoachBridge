@@ -65,9 +65,9 @@ router.post('/register', async (req, res) => {
       description,
       profileImage,
       certificates: certificates || [],
-      rating: 0, // Default vrednost
+      rating: 0,
       reviews: [],
-      trainingPackages: [], // Trener će kasnije dodati pakete
+      trainingPackages: [],
     });
 
     await trainer.save();
@@ -75,6 +75,45 @@ router.post('/register', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({msg: 'Greška na serveru'});
+  }
+});
+
+// 🔹 Dohvati sve pakete za određenog trenera
+router.get('/trainers/:trainerId/packages', async (req, res) => {
+  try {
+    const trainer = await Trainer.findById(req.params.trainerId);
+    if (!trainer) {
+      return res.status(404).json({msg: 'Trener nije pronađen'});
+    }
+    res.json(trainer.trainingPackages);
+  } catch (err) {
+    res.status(500).json({msg: 'Server error'});
+  }
+});
+
+// 🔹 Dodaj novi paket treninga
+router.post('/trainers/:trainerId/packages', async (req, res) => {
+  try {
+    const {title, description, price, videos} = req.body;
+    const trainer = await Trainer.findById(req.params.trainerId);
+
+    if (!trainer) {
+      return res.status(404).json({msg: 'Trener nije pronađen'});
+    }
+
+    const newPackage = {
+      title,
+      description,
+      price,
+      videos: videos || [],
+    };
+
+    trainer.trainingPackages.push(newPackage);
+    await trainer.save();
+
+    res.status(201).json(trainer.trainingPackages);
+  } catch (err) {
+    res.status(500).json({msg: 'Server error'});
   }
 });
 
