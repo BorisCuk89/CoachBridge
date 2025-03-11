@@ -3,12 +3,30 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'http://localhost:5001/api/auth';
 
-interface User {
+// 📌 Interfejs za korisnika
+interface BaseUser {
   id: string;
   name: string;
   email: string;
+  role: 'client' | 'trainer';
 }
 
+interface Client extends BaseUser {
+  role: 'client';
+}
+
+interface Trainer extends BaseUser {
+  role: 'trainer';
+  title: string;
+  description: string;
+  profileImage?: string;
+  certificates?: string[];
+  rating?: number;
+}
+
+type User = Client | Trainer;
+
+// 📌 AuthState interfejs
 interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
@@ -17,7 +35,7 @@ interface AuthState {
   error: string | null;
 }
 
-// Početno stanje
+// 📌 Početno stanje
 const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
@@ -25,6 +43,25 @@ const initialState: AuthState = {
   loading: false,
   error: null,
 };
+
+// 🔹 Asinhrona akcija za učitavanje korisnika iz AsyncStorage-a
+export const loadUser = createAsyncThunk(
+  'auth/loadUser',
+  async (_, thunkAPI) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const user = await AsyncStorage.getItem('user');
+
+      if (token && user) {
+        return {token, user: JSON.parse(user) as User};
+      }
+
+      return thunkAPI.rejectWithValue('Nema sačuvanog korisnika');
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
 
 // 🔹 Asinhrona akcija za login
 export const loginUser = createAsyncThunk(
@@ -38,16 +75,18 @@ export const loginUser = createAsyncThunk(
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.msg || 'Neuspešan login');
       }
 
-      // 📌 Sačuvaj token i user podatke u AsyncStorage
-      await AsyncStorage.setItem('token', data.token);
-      await AsyncStorage.setItem('user', JSON.stringify(data.user));
+      const account: User = data.user || data.trainer;
 
-      return data;
+      console.log(account);
+
+      await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(account));
+
+      return {token: data.token, user: account};
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -93,6 +132,16 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
         state.token = null;
+      })
+      .addCase(loadUser.fulfilled, (state, action) => {
+        state.isAuthenticated = true;
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+      })
+      .addCase(loadUser.rejected, state => {
+        state.isAuthenticated = false;
+        state.token = null;
+        state.user = null;
       });
   },
 });

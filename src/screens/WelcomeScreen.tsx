@@ -12,8 +12,8 @@ const WelcomeScreen = ({navigation}: any) => {
       <Text style={styles.title}>Welcome to CoachBridge</Text>
       <Button title="Login" onPress={() => navigation.navigate('Login')} />
       <Button
-        title="Register"
-        onPress={() => navigation.navigate('Register')}
+        title="Registracija"
+        onPress={() => navigation.navigate('ChooseRole')}
       />
     </View>
   );

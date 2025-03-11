@@ -1,29 +1,39 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList, Button, StyleSheet, Alert} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {RootState} from '../store/store.ts';
+import {logoutUser} from '../store/auth/authSlice.ts';
 
 const API_URL = 'http://localhost:5001/api/trainers';
 
-const TrainerDashboardScreen = ({route, navigation}) => {
-  const {trainer} = route.params;
+const TrainerDashboardScreen = ({navigation}) => {
+  const {user} = useSelector((state: RootState) => state.auth);
   const [packages, setPackages] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchPackages();
   }, []);
 
   const fetchPackages = async () => {
-    try {
-      const response = await fetch(`${API_URL}/${trainer._id}/packages`);
-      const data = await response.json();
-      setPackages(data);
-    } catch (error) {
-      console.error('❌ Greška pri dohvatanju paketa', error);
-    }
+    // try {
+    //   const response = await fetch(`${API_URL}/${user._id}/packages`);
+    //   const data = await response.json();
+    //   setPackages(data);
+    // } catch (error) {
+    //   console.error('❌ Greška pri dohvatanju paketa', error);
+    // }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Moji Trening Paketi</Text>
+
+      <Text style={styles.description}>{user?.name}</Text>
+      <Text style={styles.description}>{user?.title}</Text>
+      <Text style={styles.description}>{user?.description}</Text>
+
+      <Button title="Odjavi se" onPress={() => dispatch(logoutUser() as any)} />
 
       <FlatList
         data={packages}
@@ -39,7 +49,7 @@ const TrainerDashboardScreen = ({route, navigation}) => {
 
       <Button
         title="Dodaj novi paket"
-        onPress={() => navigation.navigate('AddPackage', {trainer})}
+        // onPress={() => navigation.navigate('AddPackage', {trainer})}
       />
     </View>
   );
@@ -48,7 +58,9 @@ const TrainerDashboardScreen = ({route, navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
     padding: 15,
+    paddingTop: 100,
   },
   title: {
     fontSize: 20,

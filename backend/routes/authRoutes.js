@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Trainer = require('../models/Trainer');
 const router = express.Router();
 
 // 📌 Middleware za proveru JWT tokena
@@ -59,38 +60,70 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// 📌 Login korisnika
+// 📌 Login korisnika (klijent ili trener)
 router.post('/login', async (req, res) => {
   try {
     const {email, password} = req.body;
 
+    // 🔍 Prvo tražimo korisnika među klijentima
     let user = await User.findOne({email});
-    if (!user)
-      return res.status(400).json({msg: 'Neispravan email ili lozinka'});
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(400).json({msg: 'Neispravan email ili lozinka'});
+    // 🔍 Ako ga nema u klijentima, tražimo ga među trenerima
+    let trainer = null;
+    if (!user) {
+      trainer = await Trainer.findOne({email});
+    }
 
+    // Ako ni ovde ne postoji, vraćamo grešku
+    if (!user && !trainer) {
+      return res.status(400).json({msg: 'Neispravan email ili lozinka'});
+    }
+
+    const account = user || trainer; // Uzimamo pronađeni nalog
+
+    // 🔐 Provera lozinke
+    const isMatch = await bcrypt.compare(password, account.password);
+    if (!isMatch) {
+      return res.status(400).json({msg: 'Neispravan email ili lozinka'});
+    }
+
+    // 🎟️ Generišemo JWT token
     const token = jwt.sign(
-      {id: user._id, role: user.role},
+      {id: account._id, role: user ? 'client' : 'trainer'},
       process.env.JWT_SECRET,
-      {
-        expiresIn: '7d',
-      },
+      {expiresIn: '7d'},
     );
 
-    res.json({
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        description: user.description,
-      },
-    });
+    // 📌 Vraćamo korisnika ili trenera u zavisnosti od toga ko se prijavio
+    if (user) {
+      res.json({
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: 'client',
+        },
+      });
+    } else {
+      res.json({
+        token,
+        trainer: {
+          id: trainer._id,
+          name: trainer.name,
+          email: trainer.email,
+          title: trainer.title,
+          description: trainer.description,
+          profileImage: trainer.profileImage || '',
+          rating: trainer.rating || 0,
+          certificates: trainer.certificates || [],
+          trainingPackages: trainer.trainingPackages || [],
+          role: 'trainer',
+        },
+      });
+    }
   } catch (err) {
+    console.error('❌ Greška prilikom logovanja:', err);
     res.status(500).json({msg: 'Server error'});
   }
 });

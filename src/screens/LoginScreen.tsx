@@ -8,7 +8,7 @@ import {useNavigation} from '@react-navigation/native';
 const LoginScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const {loading, error, isAuthenticated} = useSelector(
+  const {loading, error, isAuthenticated, user} = useSelector(
     (state: RootState) => state.auth,
   );
 
@@ -20,7 +20,7 @@ const LoginScreen = () => {
       console.log('✅ Uspesan login, preusmeravam na Home');
       navigation.reset({
         index: 0,
-        routes: [{name: 'Home'}],
+        routes: [{name: user.role == 'client' ? 'Home' : 'TrainerDashboard'}],
       });
     }
   }, [isAuthenticated, navigation]);

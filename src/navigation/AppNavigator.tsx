@@ -7,16 +7,18 @@ import {RootState} from '../store/store';
 import SplashScreen from '../screens/SplashScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
-import RegisterScreen from '../screens/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
 import TrainerProfileScreen from '../screens/TrainerProfileScreen';
 import TrainerDashboardScreen from '../screens/TrainerDashboardScreen';
 import AddPackageScreen from '../screens/AddPackageScreen';
+import ChooseRoleScreen from '../screens/ChooseRoleScreen';
+import RegisterClientScreen from '../screens/RegisterClientScreen';
+import RegisterTrainerScreen from '../screens/RegisterTrainerScreen';
 
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
-  const {isAuthenticated} = useSelector((state: RootState) => state.auth);
+  const {isAuthenticated, user} = useSelector((state: RootState) => state.auth);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,23 +41,36 @@ const AppNavigator = () => {
         {loading ? (
           <Stack.Screen name="Splash" component={SplashScreen} />
         ) : isAuthenticated ? (
-          <>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen
-              name="TrainerProfile"
-              component={TrainerProfileScreen}
-            />
-            <Stack.Screen
-              name="TrainerDashboard"
-              component={TrainerDashboardScreen}
-            />
-            <Stack.Screen name="AddPackage" component={AddPackageScreen} />
-          </>
+          user?.role === 'trainer' ? (
+            <>
+              <Stack.Screen
+                name="TrainerDashboard"
+                component={TrainerDashboardScreen}
+              />
+            </>
+          ) : (
+            <>
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen
+                name="TrainerProfile"
+                component={TrainerProfileScreen}
+              />
+            </>
+          )
         ) : (
           <>
             <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="AddPackage" component={AddPackageScreen} />
+            <Stack.Screen name="ChooseRole" component={ChooseRoleScreen} />
+            <Stack.Screen
+              name="RegisterClient"
+              component={RegisterClientScreen}
+            />
+            <Stack.Screen
+              name="RegisterTrainer"
+              component={RegisterTrainerScreen}
+            />
           </>
         )}
       </Stack.Navigator>
