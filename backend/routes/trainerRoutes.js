@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const Trainer = require('../models/Trainer');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 
 // Dohvati sve trenere
 router.get('/', async (req, res) => {
@@ -72,8 +73,17 @@ router.post('/register', async (req, res) => {
       trainingPackages: [],
     });
 
+    // ✅ Generiši token nakon registracije
+    const token = jwt.sign(
+      {id: trainer._id, role: 'trainer'},
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '7d',
+      },
+    );
+
     await trainer.save();
-    res.status(201).json({msg: 'Trener uspešno registrovan', trainer});
+    res.status(201).json({msg: 'Trener uspešno registrovan', token, trainer});
   } catch (err) {
     console.error(err);
     res.status(500).json({msg: 'Greška na serveru'});

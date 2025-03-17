@@ -142,6 +142,10 @@ export const registerTrainer = createAsyncThunk(
         throw new Error(data.msg || 'Neuspešna registracija');
       }
 
+      // ✅ Sačuvaj token i korisnika u AsyncStorage
+      await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(data.trainer));
+
       // 📌 Nakon registracije, odmah prijavljujemo korisnika
       return {token: data.token, user: data.trainer};
     } catch (error) {
