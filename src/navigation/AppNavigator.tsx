@@ -14,6 +14,7 @@ import AddPackageScreen from '../screens/AddPackageScreen';
 import ChooseRoleScreen from '../screens/ChooseRoleScreen';
 import RegisterClientScreen from '../screens/RegisterClientScreen';
 import RegisterTrainerScreen from '../screens/RegisterTrainerScreen';
+import AddTraining from '../screens/AddTrainingScreen.tsx';
 
 const Stack = createStackNavigator();
 
@@ -47,6 +48,7 @@ const AppNavigator = () => {
                 name="TrainerDashboard"
                 component={TrainerDashboardScreen}
               />
+              <Stack.Screen name="AddTraining" component={AddTraining} />
             </>
           ) : (
             <>

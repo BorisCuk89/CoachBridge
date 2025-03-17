@@ -90,21 +90,33 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// 🔹 Dohvati sve pakete za određenog trenera
-router.get('/trainers/:trainerId/packages', async (req, res) => {
+// 📌 Dohvati treninge ili planove ishrane trenera
+router.get('/:trainerId/:contentType', async (req, res) => {
   try {
-    const trainer = await Trainer.findById(req.params.trainerId);
+    const {trainerId, contentType} = req.params;
+    console.log(`🔍 Zahtev za ${contentType} od trenera ID: ${trainerId}`);
+    const trainer = await Trainer.findById(trainerId);
     if (!trainer) {
+      console.log('❌ Trener nije pronađen');
       return res.status(404).json({msg: 'Trener nije pronađen'});
     }
-    res.json(trainer.trainingPackages);
+
+    if (contentType === 'trainings') {
+      return res.json(trainer.trainingPackages || []);
+    } else if (contentType === 'plans') {
+      return res.json(trainer.mealPlans || []);
+    } else {
+      console.log('❌ Nepoznata kategorija:', contentType);
+      return res.status(400).json({msg: 'Nepoznata kategorija'});
+    }
   } catch (err) {
-    res.status(500).json({msg: 'Server error'});
+    console.error('❌ Greška na serveru:', err);
+    res.status(500).json({msg: 'Greška na serveru'});
   }
 });
 
-// 🔹 Dodaj novi paket treninga
-router.post('/trainers/:trainerId/packages', async (req, res) => {
+// ✅ Dodavanje trening paketa sa više videa i opisima
+router.post('/:trainerId/training-packages', async (req, res) => {
   try {
     const {title, description, price, videos} = req.body;
     const trainer = await Trainer.findById(req.params.trainerId);
@@ -113,19 +125,37 @@ router.post('/trainers/:trainerId/packages', async (req, res) => {
       return res.status(404).json({msg: 'Trener nije pronađen'});
     }
 
+    // 📌 Provera da li su svi neophodni podaci poslati
+    if (!title || !description || !price || !videos || videos.length === 0) {
+      return res
+        .status(400)
+        .json({msg: 'Svi podaci su obavezni, uključujući barem jedan video'});
+    }
+
+    // 📌 Provera da li svaki video ima title i videoUrl
+    const validatedVideos = videos.map(video => ({
+      title: video.title || 'Untitled Video',
+      videoUrl: video.videoUrl || '',
+    }));
+
+    if (validatedVideos.some(video => !video.videoUrl)) {
+      return res.status(400).json({msg: 'Svaki video mora imati URL'});
+    }
+
     const newPackage = {
       title,
       description,
       price,
-      videos: videos || [],
+      videos: validatedVideos, // 📌 Čistimo podatke i obezbeđujemo da nisu prazni
     };
 
     trainer.trainingPackages.push(newPackage);
     await trainer.save();
 
-    res.status(201).json(trainer.trainingPackages);
+    res.status(201).json(newPackage);
   } catch (err) {
-    res.status(500).json({msg: 'Server error'});
+    console.error('❌ Greška pri dodavanju trening paketa:', err);
+    res.status(500).json({msg: 'Greška na serveru'});
   }
 });
 

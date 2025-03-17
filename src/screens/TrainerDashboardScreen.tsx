@@ -1,90 +1,214 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList, Button, StyleSheet, Alert} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {RootState} from '../store/store.ts';
+import {
+  View,
+  Text,
+  Image,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Modal,
+  Button,
+} from 'react-native';
+import {useSelector, useDispatch} from 'react-redux';
+import {RootState} from '../store/store';
+import {fetchTrainerContent} from '../store/trainer/trainerSlice';
 import {logoutUser} from '../store/auth/authSlice.ts';
-
-const API_URL = 'http://localhost:5001/api/trainers';
 
 const TrainerDashboardScreen = ({navigation}) => {
   const {user} = useSelector((state: RootState) => state.auth);
-  const [packages, setPackages] = useState([]);
+  const {trainings, plans, loading} = useSelector(
+    (state: RootState) => state.trainer,
+  );
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    fetchPackages();
-  }, []);
+  const [contentType, setContentType] = useState<'trainings' | 'plans'>(
+    'trainings',
+  );
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const fetchPackages = async () => {
-    // try {
-    //   const response = await fetch(`${API_URL}/${user._id}/packages`);
-    //   const data = await response.json();
-    //   setPackages(data);
-    // } catch (error) {
-    //   console.error('❌ Greška pri dohvatanju paketa', error);
-    // }
-  };
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchTrainerContent({trainerId: user.id, contentType}) as any);
+    }
+  }, [contentType, dispatch, user]);
+
+  const data = contentType === 'trainings' ? trainings : plans;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Moji Trening Paketi</Text>
-
-      <Text style={styles.description}>{user?.name}</Text>
-      <Text style={styles.description}>{user?.title}</Text>
-      <Text style={styles.description}>{user?.description}</Text>
+      {/* 📌 Prikaz profila trenera */}
+      <View style={styles.profileContainer}>
+        <Image
+          source={{
+            uri: user?.profileImage || 'https://via.placeholder.com/150',
+          }}
+          style={styles.profileImage}
+        />
+        <Text style={styles.name}>{user?.name}</Text>
+        <Text style={styles.title}>{user?.title}</Text>
+        <Text style={styles.description}>{user?.description}</Text>
+      </View>
 
       <Button title="Odjavi se" onPress={() => dispatch(logoutUser() as any)} />
 
-      <FlatList
-        data={packages}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({item}) => (
-          <View style={styles.card}>
-            <Text style={styles.packageTitle}>{item.title}</Text>
-            <Text style={styles.description}>{item.description}</Text>
-            <Text style={styles.price}>Cena: {item.price}€</Text>
-          </View>
-        )}
-      />
+      {/* 📌 Sortiranje sadržaja */}
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          onPress={() => setContentType('trainings')}
+          style={
+            contentType === 'trainings'
+              ? styles.activeFilter
+              : styles.filterButton
+          }>
+          <Text style={styles.filterText}>Treninzi</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setContentType('plans')}
+          style={
+            contentType === 'plans' ? styles.activeFilter : styles.filterButton
+          }>
+          <Text style={styles.filterText}>Planovi ishrane</Text>
+        </TouchableOpacity>
+      </View>
 
-      <Button
-        title="Dodaj novi paket"
-        // onPress={() => navigation.navigate('AddPackage', {trainer})}
-      />
+      {/* 📌 Lista trening paketa ili planova ishrane */}
+      {loading ? (
+        <ActivityIndicator size="large" color="#007bff" />
+      ) : data.length === 0 ? (
+        <Text style={styles.emptyText}>Trenutno nema sadržaja</Text>
+      ) : (
+        <FlatList
+          data={data}
+          keyExtractor={item => item._id}
+          renderItem={({item}) => (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>{item.title}</Text>
+              <Text style={styles.cardDescription}>{item.description}</Text>
+              <Text style={styles.cardPrice}>Cena: {item.price}€</Text>
+            </View>
+          )}
+        />
+      )}
+
+      {/* 📌 Dugme za dodavanje */}
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setModalVisible(true)}>
+        <Text style={styles.addButtonText}>+</Text>
+      </TouchableOpacity>
+
+      {/* 📌 Modal za izbor između treninga i plana ishrane */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Dodaj novi sadržaj</Text>
+
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => {
+                setModalVisible(false);
+                navigation.navigate('AddTraining');
+              }}>
+              <Text style={styles.modalButtonText}>Dodaj trening paket</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => {
+                setModalVisible(false);
+                navigation.navigate('AddMealPlan');
+              }}>
+              <Text style={styles.modalButtonText}>Dodaj plan ishrane</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.modalButton, styles.cancelButton]}
+              onPress={() => setModalVisible(false)}>
+              <Text style={styles.modalButtonText}>Otkaži</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 15,
-    paddingTop: 100,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  container: {flex: 1, backgroundColor: '#f5f5f5', padding: 10},
+  profileContainer: {alignItems: 'center', marginBottom: 20},
+  profileImage: {width: 100, height: 100, borderRadius: 50, marginBottom: 10},
+  name: {fontSize: 22, fontWeight: 'bold'},
+  title: {fontSize: 16, color: '#555'},
+  description: {fontSize: 14, color: '#777', textAlign: 'center', marginTop: 5},
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginBottom: 10,
   },
-  card: {
+  filterButton: {
     padding: 10,
-    borderWidth: 1,
-    borderRadius: 8,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: '#ddd',
+  },
+  activeFilter: {
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: '#007bff',
+  },
+  filterText: {color: '#fff', fontWeight: 'bold'},
+  emptyText: {textAlign: 'center', fontSize: 16, color: '#888', marginTop: 20},
+  card: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
     marginBottom: 10,
   },
-  packageTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  cardTitle: {fontSize: 18, fontWeight: 'bold'},
+  cardDescription: {fontSize: 14, color: '#555', marginTop: 5},
+  cardPrice: {fontSize: 16, fontWeight: 'bold', marginTop: 5},
+  addButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#28a745',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  description: {
-    fontSize: 14,
+  addButtonText: {color: '#fff', fontSize: 30, fontWeight: 'bold'},
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  price: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginTop: 5,
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: 300,
+    alignItems: 'center',
   },
+  modalTitle: {fontSize: 18, fontWeight: 'bold', marginBottom: 15},
+  modalButton: {
+    width: '100%',
+    padding: 12,
+    marginTop: 10,
+    backgroundColor: '#007bff',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  cancelButton: {backgroundColor: '#dc3545'},
+  modalButtonText: {color: '#fff', fontSize: 16, fontWeight: 'bold'},
 });
 
 export default TrainerDashboardScreen;

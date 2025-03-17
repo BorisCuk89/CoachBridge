@@ -25,10 +25,16 @@ const TrainerSchema = new mongoose.Schema({
       videos: [
         {
           title: {type: String, required: true}, // Naziv videa
-          duration: {type: Number, required: true}, // Trajanje u minutima
           videoUrl: {type: String, required: true}, // URL videa
         },
       ],
+    },
+  ],
+  mealPlans: [
+    {
+      title: {type: String, required: true},
+      description: {type: String, required: true},
+      price: {type: Number, required: true},
     },
   ],
 });
