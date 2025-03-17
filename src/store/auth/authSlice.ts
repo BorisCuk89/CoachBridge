@@ -81,8 +81,6 @@ export const loginUser = createAsyncThunk(
 
       const account: User = data.user || data.trainer;
 
-      console.log(account);
-
       await AsyncStorage.setItem('token', data.token);
       await AsyncStorage.setItem('user', JSON.stringify(account));
 
@@ -154,6 +152,52 @@ export const registerTrainer = createAsyncThunk(
   },
 );
 
+// 🔹 Asinhrona akcija za registraciju klijenata
+export const registerClient = createAsyncThunk(
+  'auth/registerClient',
+  async (
+    {
+      name,
+      email,
+      password,
+      role,
+    }: {
+      name: string;
+      email: string;
+      password: string;
+      role: string;
+    },
+    thunkAPI,
+  ) => {
+    try {
+      const response = await fetch('http://localhost:5001/api/auth/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          role,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.msg || 'Neuspešna registracija');
+      }
+
+      // ✅ Sačuvaj token i korisnika u AsyncStorage
+      await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(data.user));
+
+      // 📌 Nakon registracije, odmah prijavljujemo korisnika
+      return {token: data.token, user: data.user};
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
 // 🔹 Asinhrona akcija za logout
 export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
   await AsyncStorage.removeItem('token');
@@ -215,6 +259,20 @@ const authSlice = createSlice({
         state.token = action.payload.token;
       })
       .addCase(registerTrainer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(registerClient.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerClient.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+      })
+      .addCase(registerClient.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

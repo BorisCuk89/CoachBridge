@@ -5,26 +5,32 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from 'react-native';
+import {registerClient} from '../store/auth/authSlice.ts';
+import {useDispatch} from 'react-redux';
 
 const RegisterClientScreen = ({navigation}) => {
+  const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleRegister = async () => {
-    const response = await fetch('http://localhost:5001/api/auth/register', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name, email, password, role: 'client'}),
-    });
+    const resultAction = await dispatch(
+      registerClient({
+        name,
+        email,
+        password,
+        role: 'client',
+      }) as any,
+    );
 
-    const data = await response.json();
-    if (response.ok) {
-      alert('Registracija uspešna');
-      navigation.navigate('Home');
+    if (registerClient.fulfilled.match(resultAction)) {
+      Alert.alert('Uspeh', 'Klijent uspešno registrovan!');
+      navigation.replace('Home');
     } else {
-      alert(data.msg);
+      Alert.alert('Greška', resultAction.payload || 'Došlo je do greške.');
     }
   };
 

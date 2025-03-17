@@ -52,8 +52,17 @@ router.post('/register', async (req, res) => {
       description: role === 'trainer' ? description || '' : undefined,
     });
 
+    // ✅ Generiši token nakon registracije
+    const token = jwt.sign(
+      {id: user._id, role: 'client'},
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '7d',
+      },
+    );
+
     await user.save();
-    res.status(201).json({msg: 'Registracija uspešna'});
+    res.status(201).json({msg: 'Registracija uspešna', token, user});
   } catch (err) {
     console.error('❌ Greška u registraciji:', err);
     res.status(500).json({msg: 'Server error'});
