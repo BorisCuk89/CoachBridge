@@ -4,6 +4,7 @@ const TrainerSchema = new mongoose.Schema({
   name: {type: String, required: true},
   email: {type: String, required: true, unique: true},
   password: {type: String, required: true},
+  role: {type: String, required: true},
   profileImage: {type: String}, // URL slike
   title: {type: String, required: true}, // npr. "Personalni trener", "Trener snage"
   description: {type: String, required: true}, // Kratak opis trenera

@@ -44,6 +44,7 @@ router.post('/register', async (req, res) => {
       description,
       profileImage,
       certificates,
+      role,
     } = req.body;
 
     // Provera da li trener već postoji
@@ -64,6 +65,7 @@ router.post('/register', async (req, res) => {
       title,
       description,
       profileImage,
+      role,
       certificates: certificates || [],
       rating: 0,
       reviews: [],
