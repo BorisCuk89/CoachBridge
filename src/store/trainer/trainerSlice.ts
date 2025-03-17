@@ -22,7 +22,7 @@ interface MealPlan {
 // 📌 State interfejs
 interface TrainerState {
   trainings: TrainingPackage[];
-  plans: MealPlan[];
+  mealPlans: MealPlan[];
   loading: boolean;
   error: string | null;
 }
@@ -30,7 +30,7 @@ interface TrainerState {
 // 📌 Početno stanje
 const initialState: TrainerState = {
   trainings: [],
-  plans: [],
+  mealPlans: [],
   loading: false,
   error: null,
 };
@@ -93,10 +93,47 @@ export const addTrainingPackage = createAsyncThunk(
 
       const data = await response.json();
 
-      console.log('data ', data);
-
       if (!response.ok) {
         throw new Error(data.msg || 'Greška pri dodavanju paketa');
+      }
+
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
+export const addMealPlan = createAsyncThunk(
+  'trainer/addMealPlan',
+  async (
+    {
+      trainerId,
+      title,
+      description,
+      price,
+    }: {
+      trainerId: string;
+      title: string;
+      description: string;
+      price: number;
+    },
+    thunkAPI,
+  ) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5001/api/trainers/${trainerId}/meal-plans`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({title, description, price}),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.msg || 'Greška pri dodavanju plana ishrane');
       }
 
       return data;
@@ -122,7 +159,8 @@ const trainerSlice = createSlice({
         if (action.payload.contentType === 'trainings') {
           state.trainings = action.payload.data;
         } else {
-          state.plans = action.payload.data;
+          console.log('action.payload.data ', action.payload.data);
+          state.mealPlans = action.payload.data;
         }
       })
       .addCase(fetchTrainerContent.rejected, (state, action) => {
@@ -138,6 +176,18 @@ const trainerSlice = createSlice({
         state.trainings.push(action.payload);
       })
       .addCase(addTrainingPackage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(addMealPlan.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addMealPlan.fulfilled, (state, action) => {
+        state.loading = false;
+        state.mealPlans.push(action.payload); // ✅ Dodajemo samo novi plan
+      })
+      .addCase(addMealPlan.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

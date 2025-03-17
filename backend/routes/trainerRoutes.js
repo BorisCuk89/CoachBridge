@@ -159,4 +159,30 @@ router.post('/:trainerId/training-packages', async (req, res) => {
   }
 });
 
+// ✅ Dodavanje plana ishrane
+router.post('/:trainerId/meal-plans', async (req, res) => {
+  try {
+    const {title, description, price} = req.body;
+    const trainer = await Trainer.findById(req.params.trainerId);
+
+    if (!trainer) {
+      return res.status(404).json({msg: 'Trener nije pronađen'});
+    }
+
+    const newPlan = {
+      title,
+      description,
+      price,
+    };
+
+    trainer.mealPlans.push(newPlan);
+    await trainer.save();
+
+    res.status(201).json(newPlan); // ✅ Vraćamo samo novi plan, ne celu listu
+  } catch (err) {
+    console.error('❌ Greška pri dodavanju plana ishrane:', err);
+    res.status(500).json({msg: 'Greška na serveru'});
+  }
+});
+
 module.exports = router;

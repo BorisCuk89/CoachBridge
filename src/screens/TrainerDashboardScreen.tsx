@@ -17,7 +17,7 @@ import {logoutUser} from '../store/auth/authSlice.ts';
 
 const TrainerDashboardScreen = ({navigation}) => {
   const {user} = useSelector((state: RootState) => state.auth);
-  const {trainings, plans, loading} = useSelector(
+  const {trainings, mealPlans, loading} = useSelector(
     (state: RootState) => state.trainer,
   );
   const dispatch = useDispatch();
@@ -33,7 +33,7 @@ const TrainerDashboardScreen = ({navigation}) => {
     }
   }, [contentType, dispatch, user]);
 
-  const data = contentType === 'trainings' ? trainings : plans;
+  const data = contentType === 'trainings' ? trainings : mealPlans;
 
   return (
     <View style={styles.container}>
@@ -80,7 +80,7 @@ const TrainerDashboardScreen = ({navigation}) => {
       ) : (
         <FlatList
           data={data}
-          keyExtractor={item => item._id}
+          keyExtractor={(item, index) => item._id || index.toString()}
           renderItem={({item}) => (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>{item.title}</Text>
