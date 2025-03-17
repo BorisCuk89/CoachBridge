@@ -26,24 +26,51 @@ const RegisterTrainerScreen = ({navigation}) => {
   const [certificates, setCertificates] = useState<string[]>([]); // Lista sertifikata
 
   const handleRegister = async () => {
-    const resultAction = await dispatch(
-      registerTrainer({
-        name,
-        email,
-        password,
-        title,
-        description,
-        profileImage,
-        certificates,
-      }),
+    const response = await fetch(
+      'http://localhost:5001/api/trainers/register',
+      {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          title,
+          description,
+          profileImage,
+          certificates,
+        }),
+      },
     );
 
-    if (registerTrainer.fulfilled.match(resultAction)) {
-      navigation.navigate('TrainerDashboard'); // ✅ Trener ide na svoj dashboard
+    const data = await response.json();
+    if (response.ok) {
+      alert('Registracija uspešna');
+      navigation.navigate('Home');
     } else {
-      alert(resultAction.payload);
+      alert(data.msg);
     }
   };
+
+  // const handleRegister = async () => {
+  //   const resultAction = await dispatch(
+  //     registerTrainer({
+  //       name,
+  //       email,
+  //       password,
+  //       title,
+  //       description,
+  //       profileImage,
+  //       certificates,
+  //     }),
+  //   );
+  //
+  //   if (registerTrainer.fulfilled.match(resultAction)) {
+  //     navigation.navigate('TrainerDashboard'); // ✅ Trener ide na svoj dashboard
+  //   } else {
+  //     alert(resultAction.payload);
+  //   }
+  // };
 
   return (
     <View style={styles.container}>
