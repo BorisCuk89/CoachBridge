@@ -19,7 +19,7 @@ const AddMealPlanScreen = ({navigation}) => {
 
     dispatch(
       addMealPlan({
-        trainerId: user.id,
+        trainerId: user._id,
         title,
         description,
         price: parseFloat(price),

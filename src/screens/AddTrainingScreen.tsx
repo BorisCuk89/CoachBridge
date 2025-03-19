@@ -43,7 +43,7 @@ const AddTrainingScreen = ({navigation}) => {
 
     dispatch(
       addTrainingPackage({
-        trainerId: user.id,
+        trainerId: user._id,
         title,
         description,
         price: parseFloat(price),

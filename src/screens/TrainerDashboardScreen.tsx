@@ -29,7 +29,7 @@ const TrainerDashboardScreen = ({navigation}) => {
 
   useEffect(() => {
     if (user) {
-      dispatch(fetchTrainerContent({trainerId: user.id, contentType}) as any);
+      dispatch(fetchTrainerContent({trainerId: user._id, contentType}) as any);
     }
   }, [contentType, dispatch, user]);
 
