@@ -1,8 +1,19 @@
-import React from 'react';
-import {View, Text, Image, StyleSheet, ScrollView, Button} from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  Button,
+  TouchableOpacity,
+} from 'react-native';
 
 const TrainerProfileScreen = ({route, navigation}) => {
   const {trainer} = route.params;
+  const [contentType, setContentType] = useState<'trainings' | 'plans'>(
+    'trainings',
+  );
 
   return (
     <ScrollView style={styles.container}>
@@ -35,6 +46,55 @@ const TrainerProfileScreen = ({route, navigation}) => {
         </View>
       )}
 
+      {/* Dugmad za prikaz trening paketa i planova ishrane */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={
+            contentType === 'trainings' ? styles.activeButton : styles.button
+          }
+          onPress={() => setContentType('trainings')}>
+          <Text style={styles.buttonText}>Treninzi</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={contentType === 'plans' ? styles.activeButton : styles.button}
+          onPress={() => setContentType('plans')}>
+          <Text style={styles.buttonText}>Planovi ishrane</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Lista sadržaja */}
+      <View style={styles.contentContainer}>
+        {contentType === 'trainings' ? (
+          trainer.trainingPackages?.length > 0 ? (
+            trainer.trainingPackages.map((packageItem, index) => (
+              <View key={index} style={styles.card}>
+                <Text style={styles.cardTitle}>{packageItem.title}</Text>
+                <Text style={styles.cardDescription}>
+                  {packageItem.description}
+                </Text>
+                <Text style={styles.cardPrice}>Cena: {packageItem.price}€</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.emptyText}>
+              Trener trenutno nema dostupne trening pakete.
+            </Text>
+          )
+        ) : trainer.mealPlans?.length > 0 ? (
+          trainer.mealPlans.map((mealPlan, index) => (
+            <View key={index} style={styles.card}>
+              <Text style={styles.cardTitle}>{mealPlan.title}</Text>
+              <Text style={styles.cardDescription}>{mealPlan.description}</Text>
+              <Text style={styles.cardPrice}>Cena: {mealPlan.price}€</Text>
+            </View>
+          ))
+        ) : (
+          <Text style={styles.emptyText}>
+            Trener trenutno nema dostupne planove ishrane.
+          </Text>
+        )}
+      </View>
+
       {/* Dugme za povratak */}
       <Button title="Nazad" onPress={() => navigation.goBack()} />
     </ScrollView>
@@ -42,11 +102,7 @@ const TrainerProfileScreen = ({route, navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 15,
-  },
+  container: {flex: 1, backgroundColor: '#f5f5f5', padding: 15},
   image: {
     width: '100%',
     height: 200,
@@ -61,12 +117,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 5,
   },
-  title: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#666',
-    marginBottom: 10,
-  },
+  title: {fontSize: 16, textAlign: 'center', color: '#666', marginBottom: 10},
   rating: {
     fontSize: 18,
     textAlign: 'center',
@@ -79,18 +130,38 @@ const styles = StyleSheet.create({
     color: '#444',
     marginBottom: 15,
   },
-  section: {
+  section: {marginBottom: 10},
+  sectionTitle: {fontSize: 16, fontWeight: 'bold', marginBottom: 5},
+  certItem: {fontSize: 14, color: '#555'},
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginBottom: 10,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
+  button: {
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: '#ddd',
   },
-  certItem: {
-    fontSize: 14,
-    color: '#555',
+  activeButton: {
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: '#007bff',
   },
+  buttonText: {color: '#fff', fontWeight: 'bold'},
+  contentContainer: {marginTop: 10},
+  card: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  cardTitle: {fontSize: 18, fontWeight: 'bold'},
+  cardDescription: {fontSize: 14, color: '#555', marginTop: 5},
+  cardPrice: {fontSize: 16, fontWeight: 'bold', marginTop: 5},
+  emptyText: {textAlign: 'center', color: '#777', fontStyle: 'italic'},
 });
 
 export default TrainerProfileScreen;
