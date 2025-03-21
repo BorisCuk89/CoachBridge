@@ -10,6 +10,8 @@ const AddMealPlanScreen = ({navigation}) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [coverImage, setCoverImage] = useState('');
+  const [introVideo, setIntroVideo] = useState('');
 
   const handleAddMealPlan = () => {
     if (!title || !description || !price) {
@@ -19,9 +21,11 @@ const AddMealPlanScreen = ({navigation}) => {
 
     dispatch(
       addMealPlan({
-        trainerId: user._id,
+        trainerId: user.id || user._id,
         title,
         description,
+        coverImage,
+        introVideo,
         price: parseFloat(price),
       }) as any,
     ).then(res => {
@@ -37,18 +41,41 @@ const AddMealPlanScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Naziv plana</Text>
-      <TextInput style={styles.input} value={title} onChangeText={setTitle} />
+      <TextInput
+        placeholder="Naziv plana"
+        style={styles.input}
+        value={title}
+        onChangeText={setTitle}
+      />
 
       <Text style={styles.label}>Opis</Text>
       <TextInput
+        placeholder="Opis"
         style={styles.input}
         value={description}
         onChangeText={setDescription}
         multiline
       />
 
+      <Text style={styles.label}>Cover photo</Text>
+      <TextInput
+        placeholder="Cover photo"
+        value={coverImage}
+        onChangeText={setCoverImage}
+        style={styles.input}
+      />
+
+      <Text style={styles.label}>Intro video</Text>
+      <TextInput
+        placeholder="Intro video"
+        value={introVideo}
+        onChangeText={setIntroVideo}
+        style={styles.input}
+      />
+
       <Text style={styles.label}>Cena (€)</Text>
       <TextInput
+        placeholder="Cena"
         style={styles.input}
         value={price}
         onChangeText={setPrice}

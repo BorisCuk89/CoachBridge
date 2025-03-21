@@ -22,6 +22,8 @@ const TrainerSchema = new mongoose.Schema({
       title: {type: String, required: true}, // Naziv paketa
       description: {type: String, required: true}, // Opis paketa
       price: {type: Number, required: true}, // Cena paketa
+      coverImage: {type: String}, // ✅ Cover slika paketa
+      introVideo: {type: String}, // ✅ Intro video
       videos: [
         {
           title: {type: String, required: true}, // Naziv videa
@@ -35,6 +37,8 @@ const TrainerSchema = new mongoose.Schema({
       title: {type: String, required: true},
       description: {type: String, required: true},
       price: {type: Number, required: true},
+      coverImage: {type: String}, // ✅ Cover slika paketa
+      introVideo: {type: String}, // ✅ Intro video
     },
   ],
 });

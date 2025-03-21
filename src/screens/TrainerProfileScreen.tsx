@@ -68,6 +68,12 @@ const TrainerProfileScreen = ({route, navigation}) => {
           trainer.trainingPackages?.length > 0 ? (
             trainer.trainingPackages.map((packageItem, index) => (
               <View key={index} style={styles.card}>
+                <View style={styles.coverImageWrap}>
+                  <Image
+                    source={{uri: packageItem.coverImage}}
+                    style={styles.coverImage}
+                  />
+                </View>
                 <Text style={styles.cardTitle}>{packageItem.title}</Text>
                 <Text style={styles.cardDescription}>
                   {packageItem.description}
@@ -83,6 +89,12 @@ const TrainerProfileScreen = ({route, navigation}) => {
         ) : trainer.mealPlans?.length > 0 ? (
           trainer.mealPlans.map((mealPlan, index) => (
             <View key={index} style={styles.card}>
+              <View style={styles.coverImageWrap}>
+                <Image
+                  source={{uri: mealPlan.coverImage}}
+                  style={styles.coverImage}
+                />
+              </View>
               <Text style={styles.cardTitle}>{mealPlan.title}</Text>
               <Text style={styles.cardDescription}>{mealPlan.description}</Text>
               <Text style={styles.cardPrice}>Cena: {mealPlan.price}€</Text>
@@ -162,6 +174,8 @@ const styles = StyleSheet.create({
   cardDescription: {fontSize: 14, color: '#555', marginTop: 5},
   cardPrice: {fontSize: 16, fontWeight: 'bold', marginTop: 5},
   emptyText: {textAlign: 'center', color: '#777', fontStyle: 'italic'},
+  coverImageWrap: {backgroundColor: 'grey', width: 50, height: 50},
+  coverImage: {backgroundColor: 'grey'},
 });
 
 export default TrainerProfileScreen;

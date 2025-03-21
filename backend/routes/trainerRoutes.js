@@ -118,7 +118,8 @@ router.get('/:trainerId/:contentType', async (req, res) => {
 // ✅ Dodavanje trening paketa sa više videa i opisima
 router.post('/:trainerId/training-packages', async (req, res) => {
   try {
-    const {title, description, price, videos} = req.body;
+    const {title, description, coverImage, introVideo, price, videos} =
+      req.body;
     const trainer = await Trainer.findById(req.params.trainerId);
 
     if (!trainer) {
@@ -126,7 +127,15 @@ router.post('/:trainerId/training-packages', async (req, res) => {
     }
 
     // 📌 Provera da li su svi neophodni podaci poslati
-    if (!title || !description || !price || !videos || videos.length === 0) {
+    if (
+      !title ||
+      !description ||
+      !coverImage ||
+      !introVideo ||
+      !price ||
+      !videos ||
+      videos.length === 0
+    ) {
       return res
         .status(400)
         .json({msg: 'Svi podaci su obavezni, uključujući barem jedan video'});
@@ -146,6 +155,8 @@ router.post('/:trainerId/training-packages', async (req, res) => {
       title,
       description,
       price,
+      coverImage, // ✅ Cover slika
+      introVideo, // ✅ Intro video
       videos: validatedVideos, // 📌 Čistimo podatke i obezbeđujemo da nisu prazni
     };
 
@@ -162,7 +173,7 @@ router.post('/:trainerId/training-packages', async (req, res) => {
 // ✅ Dodavanje plana ishrane
 router.post('/:trainerId/meal-plans', async (req, res) => {
   try {
-    const {title, description, price} = req.body;
+    const {title, description, price, coverImage, introVideo} = req.body;
     const trainer = await Trainer.findById(req.params.trainerId);
 
     if (!trainer) {
@@ -173,6 +184,8 @@ router.post('/:trainerId/meal-plans', async (req, res) => {
       title,
       description,
       price,
+      coverImage, // ✅ Cover slika
+      introVideo, // ✅ Intro video
     };
 
     trainer.mealPlans.push(newPlan);

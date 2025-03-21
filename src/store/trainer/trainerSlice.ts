@@ -9,6 +9,8 @@ interface TrainingPackage {
   title: string;
   description: string;
   price: number;
+  coverImage: string;
+  introVideo: string;
   videos: string[];
 }
 
@@ -16,6 +18,8 @@ interface MealPlan {
   _id: string;
   title: string;
   description: string;
+  coverImage: string;
+  introVideo: string;
   price: number;
 }
 
@@ -71,12 +75,16 @@ export const addTrainingPackage = createAsyncThunk(
       title,
       description,
       price,
+      coverImage,
+      introVideo,
       videos,
     }: {
       trainerId: string;
       title: string;
       description: string;
       price: number;
+      coverImage: string;
+      introVideo: string;
       videos: {videoUrl: string; description: string}[];
     },
     thunkAPI,
@@ -87,7 +95,14 @@ export const addTrainingPackage = createAsyncThunk(
         {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({title, description, price, videos}),
+          body: JSON.stringify({
+            title,
+            description,
+            price,
+            coverImage,
+            introVideo,
+            videos,
+          }),
         },
       );
 
@@ -112,21 +127,32 @@ export const addMealPlan = createAsyncThunk(
       title,
       description,
       price,
+      coverImage,
+      introVideo,
     }: {
       trainerId: string;
       title: string;
       description: string;
       price: number;
+      coverImage: string;
+      introVideo: string;
     },
     thunkAPI,
   ) => {
     try {
+      console.log('trainerId ', trainerId);
       const response = await fetch(
         `http://localhost:5001/api/trainers/${trainerId}/meal-plans`,
         {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({title, description, price}),
+          body: JSON.stringify({
+            title,
+            description,
+            coverImage,
+            introVideo,
+            price,
+          }),
         },
       );
 

@@ -29,7 +29,7 @@ const TrainerDashboardScreen = ({navigation}) => {
 
   useEffect(() => {
     if (user) {
-      dispatch(fetchTrainerContent({trainerId: user._id, contentType}) as any);
+      dispatch(fetchTrainerContent({trainerId: user.id, contentType}) as any);
     }
   }, [contentType, dispatch, user]);
 
@@ -83,6 +83,12 @@ const TrainerDashboardScreen = ({navigation}) => {
           keyExtractor={(item, index) => item._id || index.toString()}
           renderItem={({item}) => (
             <View style={styles.card}>
+              <View style={styles.coverImageWrap}>
+                <Image
+                  source={{uri: item.coverImage}}
+                  style={styles.coverImage}
+                />
+              </View>
               <Text style={styles.cardTitle}>{item.title}</Text>
               <Text style={styles.cardDescription}>{item.description}</Text>
               <Text style={styles.cardPrice}>Cena: {item.price}€</Text>
@@ -209,6 +215,8 @@ const styles = StyleSheet.create({
   },
   cancelButton: {backgroundColor: '#dc3545'},
   modalButtonText: {color: '#fff', fontSize: 16, fontWeight: 'bold'},
+  coverImageWrap: {backgroundColor: 'grey', width: 50, height: 50},
+  coverImage: {maxWidth: '100%'},
 });
 
 export default TrainerDashboardScreen;
