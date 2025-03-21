@@ -24,7 +24,7 @@ const TrainerWalletScreen = ({navigation}) => {
 
       <Button
         title="Zatraži isplatu"
-        onPress={() => dispatch(requestPayout(user._id))}
+        onPress={() => dispatch(requestPayout(user.id))}
         disabled={wallet.availableForPayout === 0}
       />
       {/* Dugme za povratak */}
