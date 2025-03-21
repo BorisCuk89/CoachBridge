@@ -16,6 +16,8 @@ import RegisterClientScreen from '../screens/RegisterClientScreen';
 import RegisterTrainerScreen from '../screens/RegisterTrainerScreen';
 import AddTraining from '../screens/AddTrainingScreen.tsx';
 import AddMealPlanScreen from '../screens/AddMealPlanScreen.tsx';
+import TrainerPackageDetails from '../screens/TrainerPackageDetailsScreen.tsx';
+import MealPlanDetails from '../screens/MealPlanDetailsScreen.tsx';
 
 const Stack = createStackNavigator();
 
@@ -58,6 +60,14 @@ const AppNavigator = () => {
               <Stack.Screen
                 name="TrainerProfile"
                 component={TrainerProfileScreen}
+              />
+              <Stack.Screen
+                name="MealPlanDetails"
+                component={MealPlanDetails}
+              />
+              <Stack.Screen
+                name="TrainerPackageDetails"
+                component={TrainerPackageDetails}
               />
             </>
           )

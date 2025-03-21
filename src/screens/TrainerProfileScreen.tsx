@@ -68,17 +68,26 @@ const TrainerProfileScreen = ({route, navigation}) => {
           trainer.trainingPackages?.length > 0 ? (
             trainer.trainingPackages.map((packageItem, index) => (
               <View key={index} style={styles.card}>
-                <View style={styles.coverImageWrap}>
-                  <Image
-                    source={{uri: packageItem.coverImage}}
-                    style={styles.coverImage}
-                  />
-                </View>
-                <Text style={styles.cardTitle}>{packageItem.title}</Text>
-                <Text style={styles.cardDescription}>
-                  {packageItem.description}
-                </Text>
-                <Text style={styles.cardPrice}>Cena: {packageItem.price}€</Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('TrainerPackageDetails', {
+                      trainingPackage: packageItem,
+                    })
+                  }>
+                  <View style={styles.coverImageWrap}>
+                    <Image
+                      source={{uri: packageItem.coverImage}}
+                      style={styles.coverImage}
+                    />
+                  </View>
+                  <Text style={styles.cardTitle}>{packageItem.title}</Text>
+                  <Text style={styles.cardDescription}>
+                    {packageItem.description}
+                  </Text>
+                  <Text style={styles.cardPrice}>
+                    Cena: {packageItem.price}€
+                  </Text>
+                </TouchableOpacity>
               </View>
             ))
           ) : (
@@ -89,15 +98,22 @@ const TrainerProfileScreen = ({route, navigation}) => {
         ) : trainer.mealPlans?.length > 0 ? (
           trainer.mealPlans.map((mealPlan, index) => (
             <View key={index} style={styles.card}>
-              <View style={styles.coverImageWrap}>
-                <Image
-                  source={{uri: mealPlan.coverImage}}
-                  style={styles.coverImage}
-                />
-              </View>
-              <Text style={styles.cardTitle}>{mealPlan.title}</Text>
-              <Text style={styles.cardDescription}>{mealPlan.description}</Text>
-              <Text style={styles.cardPrice}>Cena: {mealPlan.price}€</Text>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('MealPlanDetails', {mealPlan: mealPlan})
+                }>
+                <View style={styles.coverImageWrap}>
+                  <Image
+                    source={{uri: mealPlan.coverImage}}
+                    style={styles.coverImage}
+                  />
+                </View>
+                <Text style={styles.cardTitle}>{mealPlan.title}</Text>
+                <Text style={styles.cardDescription}>
+                  {mealPlan.description}
+                </Text>
+                <Text style={styles.cardPrice}>Cena: {mealPlan.price}€</Text>
+              </TouchableOpacity>
             </View>
           ))
         ) : (
