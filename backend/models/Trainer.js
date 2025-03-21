@@ -41,6 +41,10 @@ const TrainerSchema = new mongoose.Schema({
       introVideo: {type: String}, // ✅ Intro video
     },
   ],
+  wallet: {
+    totalEarnings: {type: Number, default: 0}, // Ukupna zarada
+    availableForPayout: {type: Number, default: 0}, // Dostupno za isplatu
+  },
 });
 
 module.exports = mongoose.model('Trainer', TrainerSchema);

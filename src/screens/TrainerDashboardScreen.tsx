@@ -46,11 +46,18 @@ const TrainerDashboardScreen = ({navigation}) => {
           style={styles.profileImage}
         />
         <Text style={styles.name}>{user?.name}</Text>
+        <Button
+          title="Odjavi se"
+          onPress={() => dispatch(logoutUser() as any)}
+        />
         <Text style={styles.title}>{user?.title}</Text>
         <Text style={styles.description}>{user?.description}</Text>
       </View>
 
-      <Button title="Odjavi se" onPress={() => dispatch(logoutUser() as any)} />
+      <Button
+        title="Trainer Wallet"
+        onPress={() => navigation.navigate('TrainerWallet')}
+      />
 
       {/* 📌 Sortiranje sadržaja */}
       <View style={styles.filterContainer}>

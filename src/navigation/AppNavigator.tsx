@@ -18,6 +18,7 @@ import AddTraining from '../screens/AddTrainingScreen.tsx';
 import AddMealPlanScreen from '../screens/AddMealPlanScreen.tsx';
 import TrainerPackageDetails from '../screens/TrainerPackageDetailsScreen.tsx';
 import MealPlanDetails from '../screens/MealPlanDetailsScreen.tsx';
+import TrainerWallet from '../screens/TrainerWalletScreen.tsx';
 
 const Stack = createStackNavigator();
 
@@ -53,6 +54,7 @@ const AppNavigator = () => {
               />
               <Stack.Screen name="AddTraining" component={AddTraining} />
               <Stack.Screen name="AddMealPlan" component={AddMealPlanScreen} />
+              <Stack.Screen name="TrainerWallet" component={TrainerWallet} />
             </>
           ) : (
             <>

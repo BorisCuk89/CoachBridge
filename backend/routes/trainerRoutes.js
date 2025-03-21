@@ -198,4 +198,53 @@ router.post('/:trainerId/meal-plans', async (req, res) => {
   }
 });
 
+router.post('/purchase/:trainerId', async (req, res) => {
+  try {
+    const {trainerId} = req.params;
+    const {amount} = req.body; // Cena trening paketa
+
+    const trainer = await Trainer.findById(trainerId);
+    if (!trainer) {
+      return res.status(404).json({msg: 'Trener nije pronađen'});
+    }
+
+    // 📌 Dodajemo zaradu u wallet
+    trainer.wallet.totalEarnings += amount;
+    trainer.wallet.availableForPayout += amount;
+
+    await trainer.save();
+
+    res.json({msg: 'Kupovina uspešno evidentirana', wallet: trainer.wallet});
+  } catch (err) {
+    console.error('❌ Greška pri ažuriranju zarade:', err);
+    res.status(500).json({msg: 'Greška na serveru'});
+  }
+});
+
+router.post('/request-payout/:trainerId', async (req, res) => {
+  try {
+    const {trainerId} = req.params;
+
+    const trainer = await Trainer.findById(trainerId);
+    if (!trainer) {
+      return res.status(404).json({msg: 'Trener nije pronađen'});
+    }
+
+    if (trainer.wallet.availableForPayout <= 0) {
+      return res.status(400).json({msg: 'Nema dostupnog novca za isplatu'});
+    }
+
+    // 📌 Simulacija isplate (u produkciji ovo ide preko Stripe-a)
+    const payoutAmount = trainer.wallet.availableForPayout;
+    trainer.wallet.availableForPayout = 0; // Resetujemo dostupan novac
+
+    await trainer.save();
+
+    res.json({msg: 'Isplata zatražena', payoutAmount});
+  } catch (err) {
+    console.error('❌ Greška pri slanju zahteva za isplatu:', err);
+    res.status(500).json({msg: 'Greška na serveru'});
+  }
+});
+
 module.exports = router;

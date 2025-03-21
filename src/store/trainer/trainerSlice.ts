@@ -27,6 +27,7 @@ interface MealPlan {
 interface TrainerState {
   trainings: TrainingPackage[];
   mealPlans: MealPlan[];
+  wallet: {totalEarnings: number; availableForPayout: number};
   loading: boolean;
   error: string | null;
 }
@@ -35,6 +36,7 @@ interface TrainerState {
 const initialState: TrainerState = {
   trainings: [],
   mealPlans: [],
+  wallet: {totalEarnings: 0, availableForPayout: 0},
   loading: false,
   error: null,
 };
@@ -169,6 +171,36 @@ export const addMealPlan = createAsyncThunk(
   },
 );
 
+export const fetchWallet = createAsyncThunk(
+  'trainer/fetchWallet',
+  async (trainerId, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/${trainerId}`);
+      const data = await response.json();
+      return data.wallet;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
+export const requestPayout = createAsyncThunk(
+  'trainer/requestPayout',
+  async (trainerId, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/request-payout/${trainerId}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+      });
+
+      const data = await response.json();
+      return data.payoutAmount;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
 // 📌 **Redux slice**
 const trainerSlice = createSlice({
   name: 'trainer',
@@ -216,6 +248,12 @@ const trainerSlice = createSlice({
       .addCase(addMealPlan.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(fetchWallet.fulfilled, (state, action) => {
+        state.wallet = action.payload;
+      })
+      .addCase(requestPayout.fulfilled, (state, action) => {
+        state.wallet.availableForPayout = 0; // Resetujemo stanje
       });
   },
 });
