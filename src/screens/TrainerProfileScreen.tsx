@@ -72,6 +72,7 @@ const TrainerProfileScreen = ({route, navigation}) => {
                   onPress={() =>
                     navigation.navigate('TrainerPackageDetails', {
                       trainingPackage: packageItem,
+                      trainer: trainer,
                     })
                   }>
                   <View style={styles.coverImageWrap}>
@@ -100,7 +101,10 @@ const TrainerProfileScreen = ({route, navigation}) => {
             <View key={index} style={styles.card}>
               <TouchableOpacity
                 onPress={() =>
-                  navigation.navigate('MealPlanDetails', {mealPlan: mealPlan})
+                  navigation.navigate('MealPlanDetails', {
+                    mealPlan: mealPlan,
+                    trainer: trainer,
+                  })
                 }>
                 <View style={styles.coverImageWrap}>
                   <Image
