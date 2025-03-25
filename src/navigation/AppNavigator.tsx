@@ -45,48 +45,58 @@ const AppNavigator = () => {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         {loading ? (
           <Stack.Screen name="Splash" component={SplashScreen} />
-        ) : isAuthenticated ? (
-          user?.role === 'trainer' ? (
-            <>
-              <Stack.Screen
-                name="TrainerDashboard"
-                component={TrainerDashboardScreen}
-              />
-              <Stack.Screen name="AddTraining" component={AddTraining} />
-              <Stack.Screen name="AddMealPlan" component={AddMealPlanScreen} />
-              <Stack.Screen name="TrainerWallet" component={TrainerWallet} />
-            </>
-          ) : (
-            <>
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen
-                name="TrainerProfile"
-                component={TrainerProfileScreen}
-              />
-              <Stack.Screen
-                name="MealPlanDetails"
-                component={MealPlanDetails}
-              />
-              <Stack.Screen
-                name="TrainerPackageDetails"
-                component={TrainerPackageDetails}
-              />
-            </>
-          )
         ) : (
           <>
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="AddPackage" component={AddPackageScreen} />
-            <Stack.Screen name="ChooseRole" component={ChooseRoleScreen} />
-            <Stack.Screen
-              name="RegisterClient"
-              component={RegisterClientScreen}
-            />
-            <Stack.Screen
-              name="RegisterTrainer"
-              component={RegisterTrainerScreen}
-            />
+            {isAuthenticated ? (
+              user?.role === 'trainer' ? (
+                <>
+                  <Stack.Screen
+                    name="TrainerDashboard"
+                    component={TrainerDashboardScreen}
+                  />
+                  <Stack.Screen name="AddTraining" component={AddTraining} />
+                  <Stack.Screen
+                    name="AddMealPlan"
+                    component={AddMealPlanScreen}
+                  />
+                  <Stack.Screen
+                    name="TrainerWallet"
+                    component={TrainerWallet}
+                  />
+                </>
+              ) : (
+                <>
+                  <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen
+                    name="TrainerProfile"
+                    component={TrainerProfileScreen}
+                  />
+                  <Stack.Screen
+                    name="TrainerPackageDetails"
+                    component={TrainerPackageDetails}
+                  />
+                  <Stack.Screen
+                    name="MealPlanDetails"
+                    component={MealPlanDetails}
+                  />
+                </>
+              )
+            ) : (
+              <>
+                <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="AddPackage" component={AddPackageScreen} />
+                <Stack.Screen name="ChooseRole" component={ChooseRoleScreen} />
+                <Stack.Screen
+                  name="RegisterClient"
+                  component={RegisterClientScreen}
+                />
+                <Stack.Screen
+                  name="RegisterTrainer"
+                  component={RegisterTrainerScreen}
+                />
+              </>
+            )}
           </>
         )}
       </Stack.Navigator>

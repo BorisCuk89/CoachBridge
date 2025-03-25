@@ -1,5 +1,6 @@
 import {createSlice, createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Linking} from 'react-native';
 
 const API_URL = 'http://localhost:5001/api/auth';
 
@@ -8,6 +9,7 @@ interface BaseUser {
   id: string;
   name: string;
   email: string;
+  purchasedPackages: [];
   role: 'client' | 'trainer';
 }
 
@@ -117,23 +119,20 @@ export const registerTrainer = createAsyncThunk(
     thunkAPI,
   ) => {
     try {
-      const response = await fetch(
-        'http://localhost:5001/api/trainers/register',
-        {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-            title,
-            description,
-            profileImage,
-            certificates,
-            role,
-          }),
-        },
-      );
+      const response = await fetch(`${API_URL}/trainers/register`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          title,
+          description,
+          profileImage,
+          certificates,
+          role,
+        }),
+      });
 
       const data = await response.json();
       if (!response.ok) {
@@ -170,7 +169,7 @@ export const registerClient = createAsyncThunk(
     thunkAPI,
   ) => {
     try {
-      const response = await fetch('http://localhost:5001/api/auth/register', {
+      const response = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -192,6 +191,48 @@ export const registerClient = createAsyncThunk(
 
       // 📌 Nakon registracije, odmah prijavljujemo korisnika
       return {token: data.token, user: data.user};
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
+// 🔹 Kreiranje Stripe Checkout sesije
+export const purchaseTrainingPackage = createAsyncThunk(
+  'auth/purchaseTrainingPackage',
+  async (
+    {userId, packageId}: {userId: string; packageId: string},
+    thunkAPI,
+  ) => {
+    try {
+      console.log(
+        '📤 Šaljem zahtev na:',
+        `${API_URL}/payments/create-checkout-session`,
+      );
+      console.log('📦 Podaci:', {userId, packageId});
+
+      // ✅ Pokretanje Stripe Checkout-a
+      const response = await fetch(
+        'http://localhost:5001/api/payments/create-checkout-session',
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({userId, packageId}),
+        },
+      );
+
+      const data = await response.json();
+
+      console.log('📩 Odgovor od servera:', data.url);
+
+      if (!response.ok) {
+        throw new Error(data.msg || 'Neuspešna kupovina');
+      }
+
+      // ✅ Redirektuj korisnika na Stripe Checkout
+      Linking.openURL(data.url);
+
+      return {success: true};
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }

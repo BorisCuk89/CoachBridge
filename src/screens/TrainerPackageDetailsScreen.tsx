@@ -27,15 +27,12 @@ const TrainerPackageDetailsScreen = ({route, navigation}) => {
     setLoading(true);
     await dispatch(
       purchaseTrainingPackage({
-        userId: user._id,
+        userId: user._id || user.id,
         packageId: trainingPackage._id,
       }),
     );
-    setPurchased(true);
     setLoading(false);
   };
-
-  console.log('trainingPackage ', trainingPackage);
 
   // 📌 Provera da li je link do videa validan
   const isValidUrl = (url: string | undefined) => {
