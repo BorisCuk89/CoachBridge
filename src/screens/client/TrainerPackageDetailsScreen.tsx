@@ -11,8 +11,8 @@ import {
 } from 'react-native';
 import Video from 'react-native-video';
 import {useSelector, useDispatch} from 'react-redux';
-import {RootState} from '../store/store';
-import {purchaseTrainingPackage} from '../store/auth/authSlice';
+import {RootState} from '../../store/store.ts';
+import {purchaseTrainingPackage} from '../../store/auth/authSlice.ts';
 
 const TrainerPackageDetailsScreen = ({route, navigation}) => {
   const {trainingPackage} = route.params;

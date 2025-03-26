@@ -16,8 +16,8 @@ import RegisterClientScreen from '../screens/auth/RegisterClientScreen.tsx';
 import RegisterTrainerScreen from '../screens/auth/RegisterTrainerScreen.tsx';
 import AddTraining from '../screens/trainer/AddTrainingScreen.tsx';
 import AddMealPlanScreen from '../screens/trainer/AddMealPlanScreen.tsx';
-import TrainerPackageDetails from '../screens/TrainerPackageDetailsScreen.tsx';
-import MealPlanDetails from '../screens/MealPlanDetailsScreen.tsx';
+import TrainerPackageDetails from '../screens/client/TrainerPackageDetailsScreen.tsx';
+import MealPlanDetails from '../screens/client/MealPlanDetailsScreen.tsx';
 import TrainerWallet from '../screens/trainer/TrainerWalletScreen.tsx';
 
 const Stack = createStackNavigator();

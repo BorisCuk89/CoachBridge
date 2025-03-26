@@ -9,8 +9,8 @@ import {
   Button,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
-import {RootState} from '../store/store';
-import {purchaseMealPlan} from '../store/auth/authSlice';
+import {RootState} from '../../store/store.ts';
+import {purchaseMealPlan} from '../../store/auth/authSlice.ts';
 
 const MealPlanDetailsScreen = ({route, navigation}) => {
   const {mealPlan} = route.params;
