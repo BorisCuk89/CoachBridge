@@ -119,20 +119,23 @@ export const registerTrainer = createAsyncThunk(
     thunkAPI,
   ) => {
     try {
-      const response = await fetch(`${API_URL}/trainers/register`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          title,
-          description,
-          profileImage,
-          certificates,
-          role,
-        }),
-      });
+      const response = await fetch(
+        `http://localhost:5001/api/trainers/register`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            title,
+            description,
+            profileImage,
+            certificates,
+            role,
+          }),
+        },
+      );
 
       const data = await response.json();
       if (!response.ok) {
