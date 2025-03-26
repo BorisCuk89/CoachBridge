@@ -8,8 +8,8 @@ import {
   StyleSheet,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {addTrainingPackage} from '../store/trainer/trainerSlice';
-import {RootState} from '../store/store';
+import {addTrainingPackage} from '../../store/trainer/trainerSlice.ts';
+import {RootState} from '../../store/store.ts';
 
 const AddTrainingScreen = ({navigation}) => {
   const {user} = useSelector((state: RootState) => state.auth);

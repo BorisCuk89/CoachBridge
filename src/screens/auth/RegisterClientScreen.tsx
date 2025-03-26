@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import {registerClient} from '../store/auth/authSlice.ts';
+import {registerClient} from '../../store/auth/authSlice.ts';
 import {useDispatch} from 'react-redux';
 
 const RegisterClientScreen = ({navigation}) => {

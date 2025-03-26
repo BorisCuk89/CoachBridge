@@ -11,9 +11,9 @@ import {
   Button,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
-import {RootState} from '../store/store';
-import {fetchTrainerContent} from '../store/trainer/trainerSlice';
-import {logoutUser} from '../store/auth/authSlice.ts';
+import {RootState} from '../../store/store.ts';
+import {fetchTrainerContent} from '../../store/trainer/trainerSlice.ts';
+import {logoutUser} from '../../store/auth/authSlice.ts';
 
 const TrainerDashboardScreen = ({navigation}) => {
   const {user} = useSelector((state: RootState) => state.auth);

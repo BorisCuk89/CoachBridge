@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, Button, StyleSheet} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
-import {RootState} from '../store/store';
+import {RootState} from '../../store/store.ts';
 
 const WelcomeScreen = ({navigation}: any) => {
   const dispatch = useDispatch();

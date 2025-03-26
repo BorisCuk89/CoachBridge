@@ -9,8 +9,8 @@ import {
   Alert,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {registerTrainer} from '../store/auth/authSlice';
-import {RootState} from '../store/store';
+import {registerTrainer} from '../../store/auth/authSlice.ts';
+import {RootState} from '../../store/store.ts';
 
 const RegisterTrainerScreen = ({navigation}) => {
   const dispatch = useDispatch();

@@ -8,8 +8,8 @@ import {
   Button,
 } from 'react-native';
 import {useDispatch} from 'react-redux';
-import TrainerCard from '../components/TrainerCard';
-import {logoutUser} from '../store/auth/authSlice';
+import TrainerCard from '../../components/TrainerCard.tsx';
+import {logoutUser} from '../../store/auth/authSlice.ts';
 import {useNavigation} from '@react-navigation/native';
 
 const API_URL = 'http://localhost:5001/api/trainers';

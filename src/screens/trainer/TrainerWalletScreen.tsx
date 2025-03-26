@@ -1,8 +1,8 @@
 import React, {useEffect} from 'react';
 import {View, Text, Button, StyleSheet} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {fetchWallet, requestPayout} from '../store/trainer/trainerSlice';
-import {RootState} from '../store/store.ts';
+import {fetchWallet, requestPayout} from '../../store/trainer/trainerSlice.ts';
+import {RootState} from '../../store/store.ts';
 
 const TrainerWalletScreen = ({navigation}) => {
   const dispatch = useDispatch();

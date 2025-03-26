@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {View, TextInput, Button, Text, StyleSheet} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {loginUser} from '../store/auth/authSlice';
-import {RootState} from '../store/store';
+import {loginUser} from '../../store/auth/authSlice.ts';
+import {RootState} from '../../store/store.ts';
 import {useNavigation} from '@react-navigation/native';
 
 const LoginScreen = () => {

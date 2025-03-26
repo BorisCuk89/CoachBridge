@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {View, Text, TextInput, Button, StyleSheet, Alert} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {addMealPlan} from '../store/trainer/trainerSlice';
-import {RootState} from '../store/store';
+import {addMealPlan} from '../../store/trainer/trainerSlice.ts';
+import {RootState} from '../../store/store.ts';
 
 const AddMealPlanScreen = ({navigation}) => {
   const dispatch = useDispatch();
