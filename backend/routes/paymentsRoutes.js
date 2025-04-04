@@ -9,31 +9,32 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // ✅ Kreiranje Stripe Checkout sesije
 router.post('/create-checkout-session', async (req, res) => {
   try {
-    const {userId, packageId} = req.body;
-
-    console.log('🔍 Backend: Primljen userId:', userId);
-    console.log('🔍 Backend: Primljen packageId:', packageId);
+    const {userId, itemId, type} = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
-      console.log('❌ Backend: Korisnik nije pronađen u bazi!');
       return res.status(404).json({msg: 'Korisnik nije pronađen'});
     }
 
-    const trainingPackage = await Trainer.findOne({
-      'trainingPackages._id': packageId,
-    });
+    let trainer, item;
 
-    if (!trainingPackage)
-      return res.status(404).json({msg: 'Trening paket nije pronađen'});
+    if (type === 'package') {
+      trainer = await Trainer.findOne({'trainingPackages._id': itemId});
+      if (!trainer) return res.status(404).json({msg: 'Paket nije pronađen'});
 
-    const packageDetails = trainingPackage.trainingPackages.find(
-      p => p._id.toString() === packageId,
-    );
+      item = trainer.trainingPackages.find(p => p._id.toString() === itemId);
+    } else if (type === 'plan') {
+      trainer = await Trainer.findOne({'mealPlans._id': itemId});
+      if (!trainer)
+        return res.status(404).json({msg: 'Plan ishrane nije pronađen'});
 
-    if (!packageDetails) return res.status(404).json({msg: 'Neispravan paket'});
+      item = trainer.mealPlans.find(p => p._id.toString() === itemId);
+    } else {
+      return res.status(400).json({msg: 'Nepoznat tip kupovine'});
+    }
 
-    // ✅ Kreiraj Stripe Checkout Session
+    if (!item) return res.status(404).json({msg: 'Artikal nije pronađen'});
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -41,17 +42,17 @@ router.post('/create-checkout-session', async (req, res) => {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: packageDetails.title,
-              description: packageDetails.description,
-              images: [packageDetails.coverImage],
+              name: item.title,
+              description: item.description,
+              images: item.coverImage ? [item.coverImage] : [],
             },
-            unit_amount: packageDetails.price * 100, // 📌 Stripe prima cenu u centima
+            unit_amount: item.price * 100,
           },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      success_url: `http://localhost:5001/api/payments/success?userId=${userId}&packageId=${packageId}`,
+      success_url: `http://localhost:5001/api/payments/success?userId=${userId}&itemId=${itemId}&type=${type}`,
       cancel_url: `http://localhost:5001/api/payments/cancel`,
     });
 
@@ -64,17 +65,15 @@ router.post('/create-checkout-session', async (req, res) => {
 
 // ✅ Ruta za uspešno plaćanje
 router.get('/success', (req, res) => {
-  const {userId, packageId} = req.query;
+  const {userId, itemId, type} = req.query;
 
-  if (!userId || !packageId) {
-    return res.status(400).json({msg: 'Nedostaju userId ili packageId'});
+  if (!userId || !itemId || !type) {
+    return res.status(400).json({msg: 'Nedostaju podaci u query-ju'});
   }
 
-  console.log(`✅ Uspelo plaćanje za korisnika ${userId}, paket ${packageId}`);
-
-  // 🚀 Preusmeri korisnika nazad u aplikaciju pomoću deep linka
+  console.log(`✅ Plaćanje uspešno: ${type}, item: ${itemId}, user: ${userId}`);
   res.redirect(
-    `coachbridge://payment-status?status=success&userId=${userId}&packageId=${packageId}`,
+    `coachbridge://payment-status?status=success&userId=${userId}&type=${type}&itemId=${itemId}`,
   );
 });
 
@@ -89,28 +88,40 @@ router.get('/cancel', (req, res) => {
 // ✅ Obradi uspešnu kupovinu --- proveriti da li se koristi
 router.post('/payment-success', async (req, res) => {
   try {
-    const {userId, packageId} = req.body;
+    const {userId, itemId, type} = req.body;
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({msg: 'Korisnik nije pronađen'});
 
-    const trainer = await Trainer.findOne({'trainingPackages._id': packageId});
+    const trainer = await Trainer.findOne({
+      [`${type === 'package' ? 'trainingPackages' : 'mealPlans'}._id`]: itemId,
+    });
 
     if (!trainer) return res.status(404).json({msg: 'Trener nije pronađen'});
 
-    // 📌 Dodaj paket u kupljene pakete korisnika
-    user.purchasedPackages.push(packageId);
-    await user.save();
+    const itemList =
+      type === 'package' ? trainer.trainingPackages : trainer.mealPlans;
+    const item = itemList.find(i => i._id.toString() === itemId);
+    if (!item) return res.status(404).json({msg: 'Artikal nije pronađen'});
 
-    // 📌 Dodaj zaradu treneru
-    const packageDetails = trainer.trainingPackages.find(
-      p => p._id.toString() === packageId,
-    );
-    trainer.wallet.totalEarnings += packageDetails.price;
-    trainer.wallet.availableForPayout += packageDetails.price;
-    await trainer.save();
+    // Dodaj u korisnikov nalog
+    if (type === 'package') {
+      if (!user.purchasedPackages.includes(itemId)) {
+        user.purchasedPackages.push(itemId);
+      }
+    } else {
+      if (!user.purchasedMealPlans.includes(itemId)) {
+        user.purchasedMealPlans.push(itemId);
+      }
+    }
 
-    res.json({msg: 'Kupovina uspešno završena'});
+    // Dodaj zaradu treneru
+    trainer.wallet.totalEarnings += item.price;
+    trainer.wallet.availableForPayout += item.price;
+
+    await Promise.all([user.save(), trainer.save()]);
+
+    res.json({msg: 'Kupovina uspešno zabeležena'});
   } catch (err) {
     console.error('❌ Greška pri potvrdi plaćanja:', err);
     res.status(500).json({msg: 'Greška na serveru'});

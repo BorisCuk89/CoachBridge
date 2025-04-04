@@ -12,7 +12,7 @@ import {
 import Video from 'react-native-video';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store/store.ts';
-import {purchaseTrainingPackage} from '../../store/auth/authSlice.ts';
+import {purchasePackageAndPlan} from '../../store/auth/authSlice.ts';
 
 const TrainerPackageDetailsScreen = ({route, navigation}) => {
   const {trainingPackage} = route.params;
@@ -26,9 +26,10 @@ const TrainerPackageDetailsScreen = ({route, navigation}) => {
   const handlePurchase = async () => {
     setLoading(true);
     await dispatch(
-      purchaseTrainingPackage({
+      purchasePackageAndPlan({
         userId: user._id || user.id,
-        packageId: trainingPackage._id,
+        itemId: trainingPackage._id,
+        type: 'package',
       }),
     );
     setLoading(false);

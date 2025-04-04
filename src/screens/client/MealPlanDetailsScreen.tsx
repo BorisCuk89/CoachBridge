@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store/store.ts';
-import {purchaseMealPlan} from '../../store/auth/authSlice.ts';
+import {purchasePackageAndPlan} from '../../store/auth/authSlice.ts';
 
 const MealPlanDetailsScreen = ({route, navigation}) => {
   const {mealPlan} = route.params;
@@ -23,8 +23,13 @@ const MealPlanDetailsScreen = ({route, navigation}) => {
 
   const handlePurchase = async () => {
     setLoading(true);
-    await dispatch(purchaseMealPlan({userId: user._id, planId: mealPlan._id}));
-    setPurchased(true);
+    await dispatch(
+      purchasePackageAndPlan({
+        userId: user._id || user.id,
+        itemId: mealPlan._id,
+        type: 'plan',
+      }),
+    );
     setLoading(false);
   };
 

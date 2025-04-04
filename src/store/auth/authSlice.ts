@@ -201,10 +201,10 @@ export const registerClient = createAsyncThunk(
 );
 
 // 🔹 Kreiranje Stripe Checkout sesije
-export const purchaseTrainingPackage = createAsyncThunk(
-  'auth/purchaseTrainingPackage',
+export const purchasePackageAndPlan = createAsyncThunk(
+  'auth/purchase',
   async (
-    {userId, packageId}: {userId: string; packageId: string},
+    {userId, itemId, type}: {userId: string; itemId: string; type: string},
     thunkAPI,
   ) => {
     try {
@@ -212,7 +212,7 @@ export const purchaseTrainingPackage = createAsyncThunk(
         '📤 Šaljem zahtev na:',
         `${API_URL}/payments/create-checkout-session`,
       );
-      console.log('📦 Podaci:', {userId, packageId});
+      console.log('📦 Podaci:', {userId, itemId, type});
 
       // ✅ Pokretanje Stripe Checkout-a
       const response = await fetch(
@@ -220,7 +220,7 @@ export const purchaseTrainingPackage = createAsyncThunk(
         {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({userId, packageId}),
+          body: JSON.stringify({userId, itemId, type}),
         },
       );
 

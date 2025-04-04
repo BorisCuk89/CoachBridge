@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {Text} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,7 +13,7 @@ import ChooseRoleScreen from '../screens/auth/ChooseRoleScreen.tsx';
 import RegisterClientScreen from '../screens/auth/RegisterClientScreen.tsx';
 import RegisterTrainerScreen from '../screens/auth/RegisterTrainerScreen.tsx';
 // Client Screen
-import HomeScreen from '../screens/client/HomeScreen.tsx';
+import PaymentStatusScreen from '../screens/payment/PaymentStatusScreen.tsx';
 import TrainerProfileScreen from '../screens/client/TrainerProfileScreen.tsx';
 import TrainerPackageDetails from '../screens/client/TrainerPackageDetailsScreen.tsx';
 import MealPlanDetails from '../screens/client/MealPlanDetailsScreen.tsx';
@@ -27,6 +28,8 @@ import TrainerWallet from '../screens/trainer/TrainerWalletScreen.tsx';
 import ClientTabs from '../navigation/ClientTabs.tsx';
 
 const Stack = createStackNavigator();
+
+import {Linking} from 'react-native';
 
 const AppNavigator = () => {
   const {isAuthenticated, user} = useSelector((state: RootState) => state.auth);
@@ -46,8 +49,45 @@ const AppNavigator = () => {
     checkLoginStatus();
   }, []);
 
+  const linking = {
+    prefixes: ['coachbridge://'],
+    config: {
+      screens: {
+        ClientTabs: {
+          screens: {
+            Home: 'home',
+            ClientProfile: 'profile',
+            Settings: 'settings',
+          },
+        },
+        PaymentStatus: 'payment-status',
+        TrainerProfile: 'trainer-profile/:trainerId',
+        TrainerPackageDetails: 'trainer-package/:packageId',
+        MealPlanDetails: 'meal-plan/:mealPlanId',
+      },
+    },
+  };
+
+  useEffect(() => {
+    Linking.getInitialURL().then(url => {
+      if (url) {
+        console.log('🌐 Initial URL (app opened via deep link):', url);
+      } else {
+        console.log('🚫 App not opened via deep link');
+      }
+    });
+
+    const handleDeepLink = ({url}) => {
+      console.log('📥 Deep link primljen:', url);
+    };
+
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    return () => subscription.remove();
+  }, []);
+
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
       <Stack.Navigator screenOptions={{headerShown: false}}>
         {loading ? (
           <Stack.Screen name="Splash" component={SplashScreen} />
@@ -73,6 +113,10 @@ const AppNavigator = () => {
               ) : (
                 <>
                   <Stack.Screen name="ClientTabs" component={ClientTabs} />
+                  <Stack.Screen
+                    name="PaymentStatus"
+                    component={PaymentStatusScreen}
+                  />
                   {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
                   <Stack.Screen
                     name="TrainerProfile"

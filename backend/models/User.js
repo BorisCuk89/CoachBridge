@@ -6,6 +6,8 @@ const UserSchema = new mongoose.Schema({
   password: {type: String, required: true},
   role: {type: String, enum: ['client', 'trainer'], default: 'client'},
   description: {type: String},
+  purchasedPackages: [{type: mongoose.Schema.Types.ObjectId}],
+  purchasedMealPlans: [{type: mongoose.Schema.Types.ObjectId}],
 });
 
 module.exports = mongoose.model('User', UserSchema);
