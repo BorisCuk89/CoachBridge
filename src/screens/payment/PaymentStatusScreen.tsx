@@ -32,7 +32,7 @@ const PaymentStatusScreen = ({route}) => {
         />
         <Button
           title="🏠 Početna"
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('ClientTabs')}
         />
       </View>
     </View>

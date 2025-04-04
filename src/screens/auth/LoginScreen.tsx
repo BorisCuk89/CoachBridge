@@ -20,7 +20,9 @@ const LoginScreen = () => {
       console.log('✅ Uspesan login, preusmeravam na Home');
       navigation.reset({
         index: 0,
-        routes: [{name: user.role == 'client' ? 'Home' : 'TrainerDashboard'}],
+        routes: [
+          {name: user.role == 'client' ? 'ClientTabs' : 'TrainerDashboard'},
+        ],
       });
     }
   }, [isAuthenticated, navigation]);

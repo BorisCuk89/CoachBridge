@@ -28,7 +28,7 @@ const RegisterClientScreen = ({navigation}) => {
 
     if (registerClient.fulfilled.match(resultAction)) {
       Alert.alert('Uspeh', 'Klijent uspešno registrovan!');
-      navigation.replace('Home');
+      navigation.replace('ClientTabs');
     } else {
       Alert.alert('Greška', resultAction.payload || 'Došlo je do greške.');
     }

@@ -4,21 +4,27 @@ import {NavigationContainer} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useSelector} from 'react-redux';
 import {RootState} from '../store/store';
+// Auth Screen
 import SplashScreen from '../screens/auth/SplashScreen.tsx';
 import WelcomeScreen from '../screens/auth/WelcomeScreen.tsx';
 import LoginScreen from '../screens/auth/LoginScreen.tsx';
-import HomeScreen from '../screens/client/HomeScreen.tsx';
-import TrainerProfileScreen from '../screens/client/TrainerProfileScreen.tsx';
-import TrainerDashboardScreen from '../screens/trainer/TrainerDashboardScreen.tsx';
-import AddPackageScreen from '../screens/trainer/AddPackageScreen.tsx';
 import ChooseRoleScreen from '../screens/auth/ChooseRoleScreen.tsx';
 import RegisterClientScreen from '../screens/auth/RegisterClientScreen.tsx';
 import RegisterTrainerScreen from '../screens/auth/RegisterTrainerScreen.tsx';
-import AddTraining from '../screens/trainer/AddTrainingScreen.tsx';
-import AddMealPlanScreen from '../screens/trainer/AddMealPlanScreen.tsx';
+// Client Screen
+import HomeScreen from '../screens/client/HomeScreen.tsx';
+import TrainerProfileScreen from '../screens/client/TrainerProfileScreen.tsx';
 import TrainerPackageDetails from '../screens/client/TrainerPackageDetailsScreen.tsx';
 import MealPlanDetails from '../screens/client/MealPlanDetailsScreen.tsx';
+import ClientProfileScreen from '../screens/client/ClientProfileScreen';
+// Trainer Screen
+import TrainerDashboardScreen from '../screens/trainer/TrainerDashboardScreen.tsx';
+import AddPackageScreen from '../screens/trainer/AddPackageScreen.tsx';
+import AddTraining from '../screens/trainer/AddTrainingScreen.tsx';
+import AddMealPlanScreen from '../screens/trainer/AddMealPlanScreen.tsx';
 import TrainerWallet from '../screens/trainer/TrainerWalletScreen.tsx';
+
+import ClientTabs from '../navigation/ClientTabs.tsx';
 
 const Stack = createStackNavigator();
 
@@ -66,7 +72,8 @@ const AppNavigator = () => {
                 </>
               ) : (
                 <>
-                  <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen name="ClientTabs" component={ClientTabs} />
+                  {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
                   <Stack.Screen
                     name="TrainerProfile"
                     component={TrainerProfileScreen}
@@ -78,6 +85,10 @@ const AppNavigator = () => {
                   <Stack.Screen
                     name="MealPlanDetails"
                     component={MealPlanDetails}
+                  />
+                  <Stack.Screen
+                    name="ClientProfile"
+                    component={ClientProfileScreen}
                   />
                 </>
               )
