@@ -8,6 +8,7 @@ import {RootState} from '../store/store';
 // Auth Screen
 import SplashScreen from '../screens/auth/SplashScreen.tsx';
 import WelcomeScreen from '../screens/auth/WelcomeScreen.tsx';
+import OnboardingScreen from '../screens/onboarding/OnboardingScreen.tsx';
 import LoginScreen from '../screens/auth/LoginScreen.tsx';
 import ChooseRoleScreen from '../screens/auth/ChooseRoleScreen.tsx';
 import RegisterClientScreen from '../screens/auth/RegisterClientScreen.tsx';
@@ -138,6 +139,7 @@ const AppNavigator = () => {
               )
             ) : (
               <>
+                <Stack.Screen name="Onboarding" component={OnboardingScreen} />
                 <Stack.Screen name="Welcome" component={WelcomeScreen} />
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="AddPackage" component={AddPackageScreen} />
