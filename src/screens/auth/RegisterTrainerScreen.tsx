@@ -5,12 +5,21 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Dimensions,
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {registerTrainer} from '../../store/auth/authSlice.ts';
 import {RootState} from '../../store/store.ts';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {ScrollView} from 'react-native';
+
+const {width} = Dimensions.get('window');
 
 const RegisterTrainerScreen = ({navigation}) => {
   const dispatch = useDispatch();
@@ -22,9 +31,9 @@ const RegisterTrainerScreen = ({navigation}) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [profileImage, setProfileImage] = useState(
-    'https://example.com/default-profile.jpg', // Default slika ako nije dodata
+    'https://example.com/default-profile.jpg',
   );
-  const [certificates, setCertificates] = useState<string[]>([]); // Lista sertifikata
+  const [certificates, setCertificates] = useState<string[]>([]);
 
   const handleRegister = async () => {
     const resultAction = await dispatch(
@@ -49,86 +58,212 @@ const RegisterTrainerScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Registracija Trenera</Text>
-      <TextInput
-        placeholder="Ime"
-        value={name}
-        onChangeText={setName}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Lozinka"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Titula (npr. Personalni trener)"
-        value={title}
-        onChangeText={setTitle}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Opis"
-        value={description}
-        onChangeText={setDescription}
-        style={styles.input}
-      />
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          {/* Strelica za nazad */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color="#d8f24e" />
+          </TouchableOpacity>
 
-      {/* Opcioni unos slike i sertifikata */}
-      <TextInput
-        placeholder="Profilna slika (URL)"
-        value={profileImage}
-        onChangeText={setProfileImage}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Sertifikati (odvojeni zarezom)"
-        value={certificates.join(',')}
-        onChangeText={text => setCertificates(text.split(','))}
-        style={styles.input}
-      />
+          <Text style={styles.title}>Registruj se kao trener</Text>
+          <Text style={styles.welcome}>Dobrodošli</Text>
+          <Text style={styles.description}>
+            Podeli svoje znanje. Inspiriši druge. Tvoja trenerska karijera
+            počinje ovde.
+          </Text>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#dc3545" />
-      ) : (
-        <TouchableOpacity onPress={handleRegister} style={styles.button}>
-          <Text style={styles.buttonText}>Registruj se</Text>
-        </TouchableOpacity>
-      )}
+          {/* Forma */}
+          <View style={styles.formContainer}>
+            <Text style={styles.label}>Ime</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Unesi ime"
+              placeholderTextColor="#888"
+              value={name}
+              onChangeText={setName}
+            />
 
-      {error && <Text style={styles.error}>{error}</Text>}
-    </View>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="example@example.com"
+              placeholderTextColor="#888"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+            />
+
+            <Text style={styles.label}>Lozinka</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="***********"
+              placeholderTextColor="#888"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+
+            <Text style={styles.label}>Titula</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="npr. Personalni trener"
+              placeholderTextColor="#888"
+              value={title}
+              onChangeText={setTitle}
+            />
+
+            <Text style={styles.label}>Opis</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Napiši nešto o sebi"
+              placeholderTextColor="#888"
+              value={description}
+              onChangeText={setDescription}
+            />
+
+            <Text style={styles.label}>Profilna slika (URL)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="https://example.com/slika.jpg"
+              placeholderTextColor="#888"
+              value={profileImage}
+              onChangeText={setProfileImage}
+            />
+
+            <Text style={styles.label}>Sertifikati (odvojeni zarezom)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="sertifikat1.pdf, sertifikat2.pdf"
+              placeholderTextColor="#888"
+              value={certificates.join(',')}
+              onChangeText={text => setCertificates(text.split(','))}
+            />
+          </View>
+
+          {error && <Text style={styles.errorText}>{error}</Text>}
+
+          {/* Dugme */}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleRegister}
+            disabled={loading}>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Registruj se</Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Link za login */}
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.loginText}>
+              Već imate nalog? <Text style={styles.loginLink}>Prijavi se</Text>
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
 export default RegisterTrainerScreen;
 
 const styles = StyleSheet.create({
-  container: {flex: 1, justifyContent: 'center', alignItems: 'center'},
-  title: {fontSize: 22, fontWeight: 'bold', marginBottom: 20},
+  container: {
+    flex: 1,
+    backgroundColor: '#1b1a1a',
+    alignItems: 'center',
+    paddingTop: 100,
+    paddingHorizontal: 24,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 105,
+    left: 20,
+  },
+  title: {
+    fontSize: 20,
+    color: '#d8f24e',
+    fontWeight: 'bold',
+    marginBottom: 40,
+  },
+  welcome: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 6,
+  },
+  description: {
+    fontSize: 14,
+    color: '#ccc',
+    textAlign: 'center',
+    marginBottom: 30,
+    lineHeight: 20,
+  },
+  formContainer: {
+    backgroundColor: '#a58af8',
+    padding: 20,
+    borderRadius: 16,
+    width: width - 48,
+    marginBottom: 30,
+  },
+  label: {
+    color: '#1b1a1a',
+    fontWeight: '700',
+    marginBottom: 6,
+    marginTop: 12,
+  },
   input: {
-    width: 250,
-    borderWidth: 1,
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#000',
   },
   button: {
-    backgroundColor: '#dc3545',
-    padding: 15,
-    borderRadius: 10,
-    width: 250,
+    width: width - 120,
+    backgroundColor: '#1b1a1a',
+    paddingVertical: 16,
+    borderRadius: 28,
+    alignItems: 'center',
+    marginBottom: 20,
+    elevation: 3,
+    borderWidth: 1,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  loginText: {
+    color: '#ccc',
+    fontSize: 14,
+  },
+  loginLink: {
+    color: '#d8f24e',
+    fontWeight: '600',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    backgroundColor: '#1b1a1a',
+    paddingTop: 100,
+    paddingHorizontal: 24,
+    paddingBottom: 60,
     alignItems: 'center',
   },
-  buttonText: {color: '#fff', fontSize: 16, fontWeight: 'bold'},
-  error: {color: 'red', marginTop: 10},
 });
