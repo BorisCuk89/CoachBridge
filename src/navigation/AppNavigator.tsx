@@ -120,11 +120,6 @@ const AppNavigator = () => {
                 <>
                   <Stack.Screen name="ClientTabs" component={ClientTabs} />
                   <Stack.Screen
-                    name="PaymentStatus"
-                    component={PaymentStatusScreen}
-                  />
-                  {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
-                  <Stack.Screen
                     name="TrainerProfile"
                     component={TrainerProfileScreen}
                   />
@@ -144,6 +139,10 @@ const AppNavigator = () => {
                     name="ChangePassword"
                     component={PasswordChangeScreen}
                   />
+                  <Stack.Screen
+                    name="PaymentStatus"
+                    component={PaymentStatusScreen}
+                  />
                 </>
               )
             ) : (
@@ -160,6 +159,10 @@ const AppNavigator = () => {
                 <Stack.Screen
                   name="RegisterTrainer"
                   component={RegisterTrainerScreen}
+                />
+                <Stack.Screen
+                  name="PaymentStatus"
+                  component={PaymentStatusScreen}
                 />
               </>
             )}
