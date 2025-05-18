@@ -7,33 +7,18 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Image} from 'react-native';
-import {useDispatch} from 'react-redux';
-import {logoutUser} from '../../store/auth/authSlice.ts';
-import {useNavigation} from '@react-navigation/native';
 import TrainerCard from '../../components/TrainerCard.tsx';
 
 const API_URL = 'http://localhost:5001/api/trainers';
-const {width} = Dimensions.get('window');
 
 const HomeScreen = () => {
   const [trainers, setTrainers] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
   const [filter, setFilter] = useState('najbolji');
-
-  const handleLogout = async () => {
-    await dispatch(logoutUser() as any);
-    navigation.reset({
-      index: 0,
-      routes: [{name: 'Welcome'}],
-    });
-  };
 
   useEffect(() => {
     fetchTrainers();

@@ -37,7 +37,6 @@ const TrainerCard = ({trainer}) => {
         }
         style={styles.image}
         onError={() => {
-          console.log('sas');
           setImageError(true);
         }}
       />
