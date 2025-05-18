@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,16 +6,52 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  Dimensions,
   ScrollView,
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../store/store';
 
+const {width} = Dimensions.get('window');
+
 const ClientProfileScreen = ({navigation}) => {
   const {user} = useSelector((state: RootState) => state.auth);
+  const [selectedTab, setSelectedTab] = useState<'packages' | 'meals'>(
+    'packages',
+  );
+
+  const renderCard = (item, type: 'package' | 'meal') => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() =>
+        navigation.navigate(
+          type === 'package' ? 'TrainerPackageDetails' : 'MealPlanDetails',
+          {[type === 'package' ? 'trainingPackage' : 'mealPlan']: item},
+        )
+      }>
+      <Image source={{uri: item.coverImage}} style={styles.image} />
+      <Text style={styles.cardTitle}>{item.title}</Text>
+      <Text style={styles.cardDesc} numberOfLines={2}>
+        {item.description}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const activeList =
+    selectedTab === 'packages'
+      ? user?.purchasedPackages
+      : user?.purchasedMealPlans;
+
+  const emptyMessage =
+    selectedTab === 'packages'
+      ? 'Još uvek nema kupljenih trening paketa.'
+      : 'Još uvek nema kupljenih planova ishrane.';
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      style={{flex: 1, backgroundColor: '#1b1a1a'}}
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}>
       {/* Profilni podaci */}
       <View style={styles.profileSection}>
         <Image
@@ -30,68 +66,58 @@ const ClientProfileScreen = ({navigation}) => {
         <Text style={styles.email}>{user?.email}</Text>
       </View>
 
-      {/* Kupljeni paketi */}
-      <Text style={styles.sectionTitle}>Kupljeni Trening Paketi</Text>
-      {user?.purchasedPackages?.length > 0 ? (
-        <FlatList
-          data={user.purchasedPackages}
-          keyExtractor={item => item._id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{gap: 12}}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              style={styles.card}
-              onPress={() =>
-                navigation.navigate('TrainerPackageDetails', {
-                  trainingPackage: item,
-                })
-              }>
-              <Image source={{uri: item.coverImage}} style={styles.image} />
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardDesc} numberOfLines={2}>
-                {item.description}
-              </Text>
-            </TouchableOpacity>
-          )}
-        />
-      ) : (
-        <Text style={styles.emptyText}>
-          Još uvek nema kupljenih trening paketa.
-        </Text>
-      )}
+      {/* Toggle tabovi */}
+      <View style={styles.toggleContainer}>
+        <TouchableOpacity
+          style={[
+            styles.toggleButton,
+            selectedTab === 'packages' && styles.activeToggle,
+          ]}
+          onPress={() => setSelectedTab('packages')}>
+          <Text
+            style={[
+              styles.toggleText,
+              selectedTab === 'packages' && styles.activeToggleText,
+            ]}>
+            Trening Paketi
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.toggleButton,
+            selectedTab === 'meals' && styles.activeToggle,
+          ]}
+          onPress={() => setSelectedTab('meals')}>
+          <Text
+            style={[
+              styles.toggleText,
+              selectedTab === 'meals' && styles.activeToggleText,
+            ]}>
+            Planovi Ishrane
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-      {/* Planovi ishrane */}
-      <Text style={styles.sectionTitle}>Kupljeni Planovi Ishrane</Text>
-      {user?.purchasedMealPlans?.length > 0 ? (
+      {/* Sadržaj izabrane sekcije */}
+      {activeList?.length > 0 ? (
         <FlatList
-          data={user.purchasedMealPlans}
+          data={activeList}
           keyExtractor={item => item._id}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{gap: 12}}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              style={styles.card}
-              onPress={() =>
-                navigation.navigate('MealPlanDetails', {mealPlan: item})
-              }>
-              <Image source={{uri: item.coverImage}} style={styles.image} />
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardDesc} numberOfLines={2}>
-                {item.description}
-              </Text>
-            </TouchableOpacity>
-          )}
+          contentContainerStyle={{gap: 12, paddingVertical: 10}}
+          renderItem={({item}) =>
+            renderCard(item, selectedTab === 'packages' ? 'package' : 'meal')
+          }
         />
       ) : (
-        <Text style={styles.emptyText}>
-          Još uvek nema kupljenih planova ishrane.
-        </Text>
+        <Text style={styles.emptyText}>{emptyMessage}</Text>
       )}
     </ScrollView>
   );
 };
+
+export default ClientProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -102,7 +128,7 @@ const styles = StyleSheet.create({
   },
   profileSection: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   avatar: {
     width: 80,
@@ -119,12 +145,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#aaa',
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#d8f24e',
-    marginBottom: 10,
+  toggleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: '#2b2b2b',
+    borderRadius: 12,
     marginTop: 20,
+  },
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 12,
+  },
+  toggleText: {
+    color: '#ccc',
+    fontWeight: '500',
+  },
+  activeToggle: {
+    backgroundColor: '#d8f24e',
+  },
+  activeToggleText: {
+    color: '#1b1a1a',
+    fontWeight: 'bold',
   },
   card: {
     backgroundColor: '#2b2b2b',
@@ -152,8 +195,7 @@ const styles = StyleSheet.create({
     color: '#777',
     fontStyle: 'italic',
     fontSize: 13,
-    marginBottom: 10,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
-
-export default ClientProfileScreen;
