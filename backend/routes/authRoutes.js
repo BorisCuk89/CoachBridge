@@ -193,4 +193,22 @@ router.put('/change-password', verifyToken, async (req, res) => {
   }
 });
 
+// 📌 Brisanje naloga (klijent ili trener)
+router.delete('/delete-account', verifyToken, async (req, res) => {
+  try {
+    if (req.user.role === 'client') {
+      await User.findByIdAndDelete(req.user.id);
+    } else if (req.user.role === 'trainer') {
+      await Trainer.findByIdAndDelete(req.user.id);
+    } else {
+      return res.status(400).json({msg: 'Nepoznata rola korisnika'});
+    }
+
+    res.json({msg: 'Nalog je uspešno obrisan'});
+  } catch (err) {
+    console.error('❌ Greška prilikom brisanja naloga:', err);
+    res.status(500).json({msg: 'Greška na serveru'});
+  }
+});
+
 module.exports = router;

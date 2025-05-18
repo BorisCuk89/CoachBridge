@@ -37,6 +37,8 @@ interface AuthState {
   error: string | null;
   passwordChangeStatus: 'idle' | 'loading' | 'success' | 'error';
   passwordChangeError: string | null;
+  accountDeleteStatus?: 'idle' | 'loading' | 'success' | 'error';
+  accountDeleteError?: string | null;
 }
 
 // 📈 Početno stanje
@@ -48,6 +50,8 @@ const initialState: AuthState = {
   error: null,
   passwordChangeStatus: 'idle',
   passwordChangeError: null,
+  accountDeleteStatus: 'idle',
+  accountDeleteError: null,
 };
 
 // ⬝ Asinhrona akcija za učitavanje korisnika iz AsyncStorage-a
@@ -276,6 +280,38 @@ export const updatePassword = createAsyncThunk(
   },
 );
 
+// ⬝ Asinhrona akcija za brisanje naloga
+export const deleteAccount = createAsyncThunk(
+  'auth/deleteAccount',
+  async (_, thunkAPI) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/delete-account`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token || '',
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.msg || 'Greška prilikom brisanja naloga');
+      }
+
+      // Očisti lokalne podatke
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('user');
+
+      return {success: true};
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -291,6 +327,10 @@ const authSlice = createSlice({
     resetPasswordChangeStatus: state => {
       state.passwordChangeStatus = 'idle';
       state.passwordChangeError = null;
+    },
+    resetDeleteAccountStatus: state => {
+      state.accountDeleteStatus = 'idle';
+      state.accountDeleteError = null;
     },
   },
   extraReducers: builder => {
@@ -362,10 +402,27 @@ const authSlice = createSlice({
       .addCase(updatePassword.rejected, (state, action) => {
         state.passwordChangeStatus = 'error';
         state.passwordChangeError = action.payload as string;
+      })
+      .addCase(deleteAccount.pending, state => {
+        state.accountDeleteStatus = 'loading';
+        state.accountDeleteError = null;
+      })
+      .addCase(deleteAccount.fulfilled, state => {
+        state.accountDeleteStatus = 'success';
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
+      })
+      .addCase(deleteAccount.rejected, (state, action) => {
+        state.accountDeleteStatus = 'error';
+        state.accountDeleteError = action.payload as string;
       });
   },
 });
 
-export const {loadUserFromStorage, resetPasswordChangeStatus} =
-  authSlice.actions;
+export const {
+  loadUserFromStorage,
+  resetPasswordChangeStatus,
+  resetDeleteAccountStatus,
+} = authSlice.actions;
 export default authSlice.reducer;

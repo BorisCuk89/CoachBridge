@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,13 +9,36 @@ import {
   Linking,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {useDispatch} from 'react-redux';
-import {logoutUser} from '../../store/auth/authSlice.ts';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  logoutUser,
+  deleteAccount,
+  resetDeleteAccountStatus,
+} from '../../store/auth/authSlice.ts';
+import {RootState} from '../../store/store.ts';
 
 const SettingsScreen = ({navigation}) => {
   const dispatch = useDispatch();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
+
+  const {accountDeleteStatus, accountDeleteError} = useSelector(
+    (state: RootState) => state.auth,
+  );
+
+  useEffect(() => {
+    if (accountDeleteStatus === 'success') {
+      Alert.alert('Uspešno', 'Nalog obrisan.');
+      dispatch(resetDeleteAccountStatus());
+      navigation.reset({index: 0, routes: [{name: 'Welcome'}]});
+    } else if (accountDeleteStatus === 'error') {
+      Alert.alert(
+        'Greška',
+        accountDeleteError || 'Nije moguće obrisati nalog.',
+      );
+      dispatch(resetDeleteAccountStatus());
+    }
+  }, [accountDeleteStatus]);
 
   const handleLogout = () => {
     Alert.alert('Odjava', 'Da li ste sigurni da želite da se odjavite?', [
@@ -38,8 +61,15 @@ const SettingsScreen = ({navigation}) => {
           text: 'Izbriši',
           style: 'destructive',
           onPress: () => {
-            // 🔥 implementiraj logiku brisanja naloga ovde
-            console.log('Nalog obrisan');
+            dispatch(deleteAccount() as any)
+              .unwrap()
+              .then(() => {
+                Alert.alert('Uspešno', 'Vaš nalog je obrisan.');
+                navigation.reset({index: 0, routes: [{name: 'Welcome'}]});
+              })
+              .catch(error => {
+                Alert.alert('Greška', error || 'Nije uspelo brisanje naloga.');
+              });
           },
         },
       ],
