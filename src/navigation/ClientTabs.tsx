@@ -27,11 +27,16 @@ const ClientTabs = () => {
         },
         tabBarActiveTintColor: '#1b1a1a',
         tabBarInactiveTintColor: '#333',
-        tabBarIcon: ({color, size}) => {
+        tabBarIcon: ({color, focused, size}) => {
           let iconName = 'home';
-          if (route.name === 'Home') iconName = 'home-outline';
-          if (route.name === 'Profile') iconName = 'person-outline';
-          if (route.name === 'Settings') iconName = 'settings-outline';
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
+          } else if (route.name === 'Settings') {
+            iconName = focused ? 'settings' : 'settings-outline';
+          }
           return <Icon name={iconName} size={22} color={color} />;
         },
       })}>
