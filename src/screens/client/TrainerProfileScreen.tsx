@@ -5,9 +5,9 @@ import {
   Image,
   StyleSheet,
   ScrollView,
-  Button,
   TouchableOpacity,
 } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const TrainerProfileScreen = ({route, navigation}) => {
   const {trainer} = route.params;
@@ -17,24 +17,37 @@ const TrainerProfileScreen = ({route, navigation}) => {
 
   return (
     <ScrollView style={styles.container}>
+      {/* Strelica za nazad */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={24} color="#d8f24e" />
+      </TouchableOpacity>
+
       {/* Profilna slika */}
-      <Image source={{uri: trainer.profileImage}} style={styles.image} />
+      {trainer.profileImage ? (
+        <Image source={{uri: trainer.profileImage}} style={styles.image} />
+      ) : (
+        <View style={[styles.image, styles.imagePlaceholder]} />
+      )}
 
       {/* Ime i titula */}
       <Text style={styles.name}>{trainer.name}</Text>
       <Text style={styles.title}>{trainer.title}</Text>
 
-      {/* Ocena trenera */}
-      <Text style={styles.rating}>
-        {Array.from({length: 5}, (_, i) =>
-          i < trainer.rating ? '★' : '☆',
-        ).join(' ')}
-      </Text>
+      {/* Ocena */}
+      <View style={styles.ratingRow}>
+        {Array.from({length: 5}, (_, i) => (
+          <Text key={i} style={styles.star}>
+            {i < trainer.rating ? '★' : '☆'}
+          </Text>
+        ))}
+      </View>
 
       {/* Opis */}
       <Text style={styles.description}>{trainer.description}</Text>
 
-      {/* Lista sertifikata */}
+      {/* Sertifikati */}
       {trainer.certificates?.length > 0 && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sertifikati:</Text>
@@ -46,50 +59,62 @@ const TrainerProfileScreen = ({route, navigation}) => {
         </View>
       )}
 
-      {/* Dugmad za prikaz trening paketa i planova ishrane */}
-      <View style={styles.buttonContainer}>
+      {/* Tabovi */}
+      <View style={styles.tabContainer}>
         <TouchableOpacity
-          style={
-            contentType === 'trainings' ? styles.activeButton : styles.button
-          }
+          style={[
+            styles.tabButton,
+            contentType === 'trainings' && styles.activeTabButton,
+          ]}
           onPress={() => setContentType('trainings')}>
-          <Text style={styles.buttonText}>Treninzi</Text>
+          <Text
+            style={[
+              styles.tabButtonText,
+              contentType === 'trainings' && styles.activeTabText,
+            ]}>
+            Treninzi
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={contentType === 'plans' ? styles.activeButton : styles.button}
+          style={[
+            styles.tabButton,
+            contentType === 'plans' && styles.activeTabButton,
+          ]}
           onPress={() => setContentType('plans')}>
-          <Text style={styles.buttonText}>Planovi ishrane</Text>
+          <Text
+            style={[
+              styles.tabButtonText,
+              contentType === 'plans' && styles.activeTabText,
+            ]}>
+            Planovi ishrane
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Lista sadržaja */}
+      {/* Sadržaj */}
       <View style={styles.contentContainer}>
         {contentType === 'trainings' ? (
           trainer.trainingPackages?.length > 0 ? (
-            trainer.trainingPackages.map((packageItem, index) => (
-              <View key={index} style={styles.card}>
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('TrainerPackageDetails', {
-                      trainingPackage: packageItem,
-                      trainer: trainer,
-                    })
-                  }>
-                  <View style={styles.coverImageWrap}>
-                    <Image
-                      source={{uri: packageItem.coverImage}}
-                      style={styles.coverImage}
-                    />
-                  </View>
-                  <Text style={styles.cardTitle}>{packageItem.title}</Text>
-                  <Text style={styles.cardDescription}>
-                    {packageItem.description}
-                  </Text>
-                  <Text style={styles.cardPrice}>
-                    Cena: {packageItem.price}€
-                  </Text>
-                </TouchableOpacity>
-              </View>
+            trainer.trainingPackages.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.card}
+                onPress={() =>
+                  navigation.navigate('TrainerPackageDetails', {
+                    trainingPackage: item,
+                    trainer,
+                  })
+                }>
+                <Image
+                  source={{uri: item.coverImage}}
+                  style={styles.coverImage}
+                />
+                <View style={styles.cardInfo}>
+                  <Text style={styles.cardTitle}>{item.title}</Text>
+                  <Text style={styles.cardDescription}>{item.description}</Text>
+                  <Text style={styles.cardPrice}>Cena: {item.price}€</Text>
+                </View>
+              </TouchableOpacity>
             ))
           ) : (
             <Text style={styles.emptyText}>
@@ -97,28 +122,26 @@ const TrainerProfileScreen = ({route, navigation}) => {
             </Text>
           )
         ) : trainer.mealPlans?.length > 0 ? (
-          trainer.mealPlans.map((mealPlan, index) => (
-            <View key={index} style={styles.card}>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('MealPlanDetails', {
-                    mealPlan: mealPlan,
-                    trainer: trainer,
-                  })
-                }>
-                <View style={styles.coverImageWrap}>
-                  <Image
-                    source={{uri: mealPlan.coverImage}}
-                    style={styles.coverImage}
-                  />
-                </View>
-                <Text style={styles.cardTitle}>{mealPlan.title}</Text>
-                <Text style={styles.cardDescription}>
-                  {mealPlan.description}
-                </Text>
-                <Text style={styles.cardPrice}>Cena: {mealPlan.price}€</Text>
-              </TouchableOpacity>
-            </View>
+          trainer.mealPlans.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.card}
+              onPress={() =>
+                navigation.navigate('MealPlanDetails', {
+                  mealPlan: item,
+                  trainer,
+                })
+              }>
+              <Image
+                source={{uri: item.coverImage}}
+                style={styles.coverImage}
+              />
+              <View style={styles.cardInfo}>
+                <Text style={styles.cardTitle}>{item.title}</Text>
+                <Text style={styles.cardDescription}>{item.description}</Text>
+                <Text style={styles.cardPrice}>Cena: {item.price}€</Text>
+              </View>
+            </TouchableOpacity>
           ))
         ) : (
           <Text style={styles.emptyText}>
@@ -126,76 +149,135 @@ const TrainerProfileScreen = ({route, navigation}) => {
           </Text>
         )}
       </View>
-
-      {/* Dugme za povratak */}
-      <Button title="Nazad" onPress={() => navigation.goBack()} />
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#f5f5f5', padding: 15},
+  container: {flex: 1, backgroundColor: '#1b1a1a', padding: 20},
+  backButton: {
+    position: 'absolute',
+    top: 105,
+    left: 20,
+    zIndex: 10,
+  },
   image: {
     width: '100%',
-    height: 200,
-    borderRadius: 10,
-    marginTop: 50,
-    marginBottom: 10,
-    backgroundColor: 'grey',
+    height: 180,
+    borderRadius: 16,
+    backgroundColor: '#444',
+    marginTop: 80,
+    marginBottom: 15,
+  },
+  imagePlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   name: {
     fontSize: 22,
     fontWeight: 'bold',
+    color: '#fff',
     textAlign: 'center',
-    marginBottom: 5,
   },
-  title: {fontSize: 16, textAlign: 'center', color: '#666', marginBottom: 10},
-  rating: {
-    fontSize: 18,
+  title: {
+    fontSize: 16,
+    color: '#ccc',
     textAlign: 'center',
-    color: '#f39c12',
     marginBottom: 10,
   },
-  description: {
-    fontSize: 14,
-    textAlign: 'justify',
-    color: '#444',
-    marginBottom: 15,
-  },
-  section: {marginBottom: 10},
-  sectionTitle: {fontSize: 16, fontWeight: 'bold', marginBottom: 5},
-  certItem: {fontSize: 14, color: '#555'},
-  buttonContainer: {
+  ratingRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginBottom: 10,
   },
-  button: {
-    padding: 10,
-    marginHorizontal: 5,
-    borderRadius: 5,
-    backgroundColor: '#ddd',
+  star: {
+    fontSize: 20,
+    color: '#f39c12',
+    marginHorizontal: 1,
   },
-  activeButton: {
-    padding: 10,
-    marginHorizontal: 5,
-    borderRadius: 5,
-    backgroundColor: '#007bff',
+  description: {
+    fontSize: 14,
+    color: '#aaa',
+    textAlign: 'center',
+    marginBottom: 15,
   },
-  buttonText: {color: '#fff', fontWeight: 'bold'},
-  contentContainer: {marginTop: 10},
-  card: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
+  section: {
     marginBottom: 10,
   },
-  cardTitle: {fontSize: 18, fontWeight: 'bold'},
-  cardDescription: {fontSize: 14, color: '#555', marginTop: 5},
-  cardPrice: {fontSize: 16, fontWeight: 'bold', marginTop: 5},
-  emptyText: {textAlign: 'center', color: '#777', fontStyle: 'italic'},
-  coverImageWrap: {backgroundColor: 'grey', width: 50, height: 50},
-  coverImage: {backgroundColor: 'grey'},
+  sectionTitle: {
+    fontSize: 16,
+    color: '#d8f24e',
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  certItem: {
+    color: '#eee',
+    fontSize: 14,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 12,
+    gap: 10,
+  },
+  tabButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: '#2e2e2e',
+  },
+  activeTabButton: {
+    backgroundColor: '#d8f24e',
+  },
+  tabButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  activeTabText: {
+    color: '#1b1a1a',
+  },
+  contentContainer: {
+    marginTop: 10,
+  },
+  card: {
+    flexDirection: 'row',
+    backgroundColor: '#2e2e2e',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  coverImage: {
+    width: 110,
+    height: 110,
+    borderRadius: 8,
+    backgroundColor: '#555',
+    marginRight: 12,
+  },
+  cardInfo: {
+    flex: 1,
+  },
+  cardTitle: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  cardDescription: {
+    fontSize: 13,
+    color: '#ccc',
+    marginTop: 2,
+  },
+  cardPrice: {
+    fontSize: 14,
+    color: '#d8f24e',
+    marginTop: 4,
+    fontWeight: '600',
+  },
+  emptyText: {
+    color: '#888',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 10,
+  },
 });
 
 export default TrainerProfileScreen;
