@@ -28,25 +28,29 @@ interface Trainer extends BaseUser {
 
 type User = Client | Trainer;
 
-// 📌 AuthState interfejs
+// 📈 AuthState interfejs
 interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
   token: string | null;
   loading: boolean;
   error: string | null;
+  passwordChangeStatus: 'idle' | 'loading' | 'success' | 'error';
+  passwordChangeError: string | null;
 }
 
-// 📌 Početno stanje
+// 📈 Početno stanje
 const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
   token: null,
   loading: false,
   error: null,
+  passwordChangeStatus: 'idle',
+  passwordChangeError: null,
 };
 
-// 🔹 Asinhrona akcija za učitavanje korisnika iz AsyncStorage-a
+// ⬝ Asinhrona akcija za učitavanje korisnika iz AsyncStorage-a
 export const loadUser = createAsyncThunk(
   'auth/loadUser',
   async (_, thunkAPI) => {
@@ -65,7 +69,7 @@ export const loadUser = createAsyncThunk(
   },
 );
 
-// 🔹 Asinhrona akcija za login
+// ⬝ Asinhrona akcija za login
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({email, password}: {email: string; password: string}, thunkAPI) => {
@@ -93,7 +97,7 @@ export const loginUser = createAsyncThunk(
   },
 );
 
-// 🔹 Asinhrona akcija za registraciju trenera
+// ⬝ Asinhrona akcija za registraciju trenera
 export const registerTrainer = createAsyncThunk(
   'auth/registerTrainer',
   async (
@@ -146,7 +150,7 @@ export const registerTrainer = createAsyncThunk(
       await AsyncStorage.setItem('token', data.token);
       await AsyncStorage.setItem('user', JSON.stringify(data.trainer));
 
-      // 📌 Nakon registracije, odmah prijavljujemo korisnika
+      // 📜 Nakon registracije, odmah prijavljujemo korisnika
       return {token: data.token, user: data.trainer};
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
@@ -154,7 +158,7 @@ export const registerTrainer = createAsyncThunk(
   },
 );
 
-// 🔹 Asinhrona akcija za registraciju klijenata
+// ⬝ Asinhrona akcija za registraciju klijenata
 export const registerClient = createAsyncThunk(
   'auth/registerClient',
   async (
@@ -192,7 +196,7 @@ export const registerClient = createAsyncThunk(
       await AsyncStorage.setItem('token', data.token);
       await AsyncStorage.setItem('user', JSON.stringify(data.user));
 
-      // 📌 Nakon registracije, odmah prijavljujemo korisnika
+      // 📜 Nakon registracije, odmah prijavljujemo korisnika
       return {token: data.token, user: data.user};
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
@@ -200,7 +204,7 @@ export const registerClient = createAsyncThunk(
   },
 );
 
-// 🔹 Kreiranje Stripe Checkout sesije
+// ⬝ Kreiranje Stripe Checkout sesije
 export const purchasePackageAndPlan = createAsyncThunk(
   'auth/purchase',
   async (
@@ -208,13 +212,6 @@ export const purchasePackageAndPlan = createAsyncThunk(
     thunkAPI,
   ) => {
     try {
-      console.log(
-        '📤 Šaljem zahtev na:',
-        `${API_URL}/payments/create-checkout-session`,
-      );
-      console.log('📦 Podaci:', {userId, itemId, type});
-
-      // ✅ Pokretanje Stripe Checkout-a
       const response = await fetch(
         'http://localhost:5001/api/payments/create-checkout-session',
         {
@@ -226,13 +223,10 @@ export const purchasePackageAndPlan = createAsyncThunk(
 
       const data = await response.json();
 
-      console.log('📩 Odgovor od servera:', data.url);
-
       if (!response.ok) {
         throw new Error(data.msg || 'Neuspešna kupovina');
       }
 
-      // ✅ Redirektuj korisnika na Stripe Checkout
       Linking.openURL(data.url);
 
       return {success: true};
@@ -242,11 +236,45 @@ export const purchasePackageAndPlan = createAsyncThunk(
   },
 );
 
-// 🔹 Asinhrona akcija za logout
+// ⬝ Asinhrona akcija za logout
 export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
   await AsyncStorage.removeItem('token');
   await AsyncStorage.removeItem('user');
 });
+
+export const updatePassword = createAsyncThunk(
+  'auth/updatePassword',
+  async (
+    {
+      currentPassword,
+      newPassword,
+    }: {currentPassword: string; newPassword: string},
+    thunkAPI,
+  ) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/change-password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token || '',
+        },
+        body: JSON.stringify({currentPassword, newPassword}),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.msg || 'Greška prilikom promene lozinke');
+      }
+
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
 
 const authSlice = createSlice({
   name: 'auth',
@@ -259,6 +287,10 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = !!action.payload.token;
+    },
+    resetPasswordChangeStatus: state => {
+      state.passwordChangeStatus = 'idle';
+      state.passwordChangeError = null;
     },
   },
   extraReducers: builder => {
@@ -319,9 +351,21 @@ const authSlice = createSlice({
       .addCase(registerClient.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(updatePassword.pending, state => {
+        state.passwordChangeStatus = 'loading';
+        state.passwordChangeError = null;
+      })
+      .addCase(updatePassword.fulfilled, state => {
+        state.passwordChangeStatus = 'success';
+      })
+      .addCase(updatePassword.rejected, (state, action) => {
+        state.passwordChangeStatus = 'error';
+        state.passwordChangeError = action.payload as string;
       });
   },
 });
 
-export const {loadUserFromStorage} = authSlice.actions;
+export const {loadUserFromStorage, resetPasswordChangeStatus} =
+  authSlice.actions;
 export default authSlice.reducer;

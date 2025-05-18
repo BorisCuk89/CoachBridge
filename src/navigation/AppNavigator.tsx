@@ -13,6 +13,7 @@ import LoginScreen from '../screens/auth/LoginScreen.tsx';
 import ChooseRoleScreen from '../screens/auth/ChooseRoleScreen.tsx';
 import RegisterClientScreen from '../screens/auth/RegisterClientScreen.tsx';
 import RegisterTrainerScreen from '../screens/auth/RegisterTrainerScreen.tsx';
+import PasswordChangeScreen from '../screens/auth/PasswordChangeScreen.tsx';
 // Client Screen
 import PaymentStatusScreen from '../screens/payment/PaymentStatusScreen.tsx';
 import TrainerProfileScreen from '../screens/client/TrainerProfileScreen.tsx';
@@ -110,6 +111,10 @@ const AppNavigator = () => {
                     name="TrainerWallet"
                     component={TrainerWallet}
                   />
+                  <Stack.Screen
+                    name="ChangePassword"
+                    component={PasswordChangeScreen}
+                  />
                 </>
               ) : (
                 <>
@@ -134,6 +139,10 @@ const AppNavigator = () => {
                   <Stack.Screen
                     name="ClientProfile"
                     component={ClientProfileScreen}
+                  />
+                  <Stack.Screen
+                    name="ChangePassword"
+                    component={PasswordChangeScreen}
                   />
                 </>
               )

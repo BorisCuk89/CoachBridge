@@ -152,4 +152,45 @@ router.post('/logout', (req, res) => {
   res.json({msg: 'Uspešno ste se odjavili'});
 });
 
+// 📌 Promena lozinke
+router.put('/change-password', verifyToken, async (req, res) => {
+  const {currentPassword, newPassword} = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({msg: 'Sva polja su obavezna'});
+  }
+
+  try {
+    let account;
+
+    if (req.user.role === 'client') {
+      account = await User.findById(req.user.id);
+    } else if (req.user.role === 'trainer') {
+      account = await Trainer.findById(req.user.id);
+    }
+
+    if (!account) {
+      return res.status(404).json({msg: 'Korisnik nije pronađen'});
+    }
+
+    // Proveri trenutnu lozinku
+    const isMatch = await bcrypt.compare(currentPassword, account.password);
+    if (!isMatch) {
+      return res.status(400).json({msg: 'Trenutna lozinka nije ispravna'});
+    }
+
+    // Hesiraj novu lozinku
+    const salt = await bcrypt.genSalt(10);
+    const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+
+    account.password = hashedNewPassword;
+    await account.save();
+
+    res.json({msg: 'Lozinka je uspešno promenjena'});
+  } catch (err) {
+    console.error('❌ Greška pri promeni lozinke:', err);
+    res.status(500).json({msg: 'Greška na serveru'});
+  }
+});
+
 module.exports = router;
