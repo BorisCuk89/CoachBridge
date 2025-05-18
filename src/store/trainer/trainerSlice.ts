@@ -55,8 +55,6 @@ export const fetchTrainerContent = createAsyncThunk(
       const response = await fetch(`${API_URL}/${trainerId}/${contentType}`);
       const data = await response.json();
 
-      console.log('data ', data);
-
       if (!response.ok) {
         throw new Error(data.msg || 'Greška pri dohvatanju podataka');
       }
@@ -142,7 +140,6 @@ export const addMealPlan = createAsyncThunk(
     thunkAPI,
   ) => {
     try {
-      console.log('trainerId ', trainerId);
       const response = await fetch(
         `http://localhost:5001/api/trainers/${trainerId}/meal-plans`,
         {
@@ -217,7 +214,6 @@ const trainerSlice = createSlice({
         if (action.payload.contentType === 'trainings') {
           state.trainings = action.payload.data;
         } else {
-          console.log('action.payload.data ', action.payload.data);
           state.mealPlans = action.payload.data;
         }
       })
