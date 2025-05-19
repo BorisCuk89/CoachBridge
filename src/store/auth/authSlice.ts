@@ -39,6 +39,8 @@ interface AuthState {
   passwordChangeError: string | null;
   accountDeleteStatus?: 'idle' | 'loading' | 'success' | 'error';
   accountDeleteError?: string | null;
+  forgotPasswordStatus?: 'idle' | 'loading' | 'success' | 'error';
+  forgotPasswordMessage?: string | null;
 }
 
 // 📈 Početno stanje
@@ -52,6 +54,8 @@ const initialState: AuthState = {
   passwordChangeError: null,
   accountDeleteStatus: 'idle',
   accountDeleteError: null,
+  forgotPasswordStatus: 'idle',
+  forgotPasswordMessage: null,
 };
 
 // ⬝ Asinhrona akcija za učitavanje korisnika iz AsyncStorage-a
@@ -312,6 +316,30 @@ export const deleteAccount = createAsyncThunk(
   },
 );
 
+export const forgotPassword = createAsyncThunk(
+  'auth/forgotPassword',
+  async (email: string, thunkAPI) => {
+    try {
+      const response = await fetch(
+        'http://localhost:5001/api/auth/forgot-password',
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({email}),
+        },
+      );
+
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.msg || 'Greška prilikom slanja emaila');
+
+      return data.msg;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  },
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -331,6 +359,10 @@ const authSlice = createSlice({
     resetDeleteAccountStatus: state => {
       state.accountDeleteStatus = 'idle';
       state.accountDeleteError = null;
+    },
+    resetForgotPasswordStatus: state => {
+      state.forgotPasswordStatus = 'idle';
+      state.forgotPasswordMessage = null;
     },
   },
   extraReducers: builder => {
@@ -416,6 +448,18 @@ const authSlice = createSlice({
       .addCase(deleteAccount.rejected, (state, action) => {
         state.accountDeleteStatus = 'error';
         state.accountDeleteError = action.payload as string;
+      })
+      .addCase(forgotPassword.pending, state => {
+        state.forgotPasswordStatus = 'loading';
+        state.forgotPasswordMessage = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.forgotPasswordStatus = 'success';
+        state.forgotPasswordMessage = action.payload;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.forgotPasswordStatus = 'error';
+        state.forgotPasswordMessage = action.payload as string;
       });
   },
 });
@@ -424,5 +468,6 @@ export const {
   loadUserFromStorage,
   resetPasswordChangeStatus,
   resetDeleteAccountStatus,
+  resetForgotPasswordStatus,
 } = authSlice.actions;
 export default authSlice.reducer;

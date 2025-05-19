@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Trainer = require('../models/Trainer');
 const router = express.Router();
+const nodemailer = require('nodemailer');
 
 // 📌 Middleware za proveru JWT tokena
 const verifyToken = (req, res, next) => {
@@ -207,6 +208,45 @@ router.delete('/delete-account', verifyToken, async (req, res) => {
     res.json({msg: 'Nalog je uspešno obrisan'});
   } catch (err) {
     console.error('❌ Greška prilikom brisanja naloga:', err);
+    res.status(500).json({msg: 'Greška na serveru'});
+  }
+});
+
+router.post('/forgot-password', async (req, res) => {
+  const {email} = req.body;
+
+  if (!email) return res.status(400).json({msg: 'Email je obavezan'});
+
+  try {
+    const user = await User.findOne({email});
+    if (!user) return res.status(404).json({msg: 'Korisnik nije pronađen'});
+
+    // Generiši token za reset
+    const resetToken = jwt.sign({id: user._id}, process.env.JWT_SECRET, {
+      expiresIn: '15m',
+    });
+
+    const resetLink = `coachbridge://reset-password?token=${resetToken}`;
+
+    // Slanje emaila
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER, // npr. no-reply@gmail.com
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: '"CoachBridge" <no-reply@coachbridge.com>',
+      to: user.email,
+      subject: 'Reset lozinke',
+      html: `<p>Kliknite na link za reset lozinke:</p><p><a href="${resetLink}">${resetLink}</a></p>`,
+    });
+
+    res.json({msg: 'Link za reset lozinke je poslat na email'});
+  } catch (err) {
+    console.error('❌ Forgot password error:', err);
     res.status(500).json({msg: 'Greška na serveru'});
   }
 });

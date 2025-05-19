@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,25 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  forgotPassword,
+  resetForgotPasswordStatus,
+} from '../../store/auth/authSlice.ts';
+import {RootState} from '../../store/store.ts';
 
 const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState('');
+
+  const {forgotPasswordStatus, forgotPasswordMessage} = useSelector(
+    (state: RootState) => state.auth,
+  );
 
   const handleReset = () => {
     if (!email) {
@@ -20,12 +32,19 @@ const ForgotPasswordScreen = () => {
       return;
     }
 
-    // TODO: Pozvati backend logiku za reset lozinke
-    Alert.alert(
-      'Provera emaila',
-      `Ako postoji nalog sa email adresom ${email}, poslat je link za reset.`,
-    );
+    dispatch(forgotPassword(email));
   };
+
+  useEffect(() => {
+    if (forgotPasswordStatus === 'success') {
+      Alert.alert('✅ Uspeh', forgotPasswordMessage || 'Link poslat.');
+      dispatch(resetForgotPasswordStatus());
+      navigation.goBack();
+    } else if (forgotPasswordStatus === 'error') {
+      Alert.alert('❌ Greška', forgotPasswordMessage || 'Došlo je do greške');
+      dispatch(resetForgotPasswordStatus());
+    }
+  }, [forgotPasswordStatus]);
 
   return (
     <View style={styles.container}>
@@ -38,7 +57,6 @@ const ForgotPasswordScreen = () => {
         <Text style={styles.headerTitle}>Zaboravljena lozinka</Text>
       </View>
 
-      {/* Sadržaj */}
       <View style={styles.box}>
         <Text style={styles.label}>Email</Text>
         <TextInput
@@ -51,8 +69,15 @@ const ForgotPasswordScreen = () => {
           autoCapitalize="none"
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleReset}>
-          <Text style={styles.buttonText}>Pošalji link za reset</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleReset}
+          disabled={forgotPasswordStatus === 'loading'}>
+          {forgotPasswordStatus === 'loading' ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Pošalji link za reset</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
