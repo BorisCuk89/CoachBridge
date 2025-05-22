@@ -232,6 +232,21 @@ export const fetchGlobalFeed = createAsyncThunk(
   },
 );
 
+export const loadFavorites = createAsyncThunk(
+  'trainer/loadFavorites',
+  async (_, thunkAPI) => {
+    try {
+      const stored = await AsyncStorage.getItem('favorites');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      return [];
+    } catch (error) {
+      return thunkAPI.rejectWithValue('Greška pri učitavanju favorita');
+    }
+  },
+);
+
 // 📌 **Redux slice**
 const trainerSlice = createSlice({
   name: 'trainer',
@@ -248,6 +263,9 @@ const trainerSlice = createSlice({
       } else {
         state.favorites.push(action.payload);
       }
+
+      // ✅ Sačuvaj u AsyncStorage
+      AsyncStorage.setItem('favorites', JSON.stringify(state.favorites));
     },
   },
   extraReducers: builder => {
@@ -309,6 +327,9 @@ const trainerSlice = createSlice({
       .addCase(fetchGlobalFeed.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(loadFavorites.fulfilled, (state, action) => {
+        state.favorites = action.payload;
       });
   },
 });

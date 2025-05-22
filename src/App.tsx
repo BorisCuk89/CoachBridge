@@ -5,11 +5,16 @@ import AppNavigator from '../src/navigation/AppNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {loadUserFromStorage} from './store/auth/authSlice';
 import {LogBox} from 'react-native';
+import {loadFavorites} from './store/trainer/trainerSlice';
 
 LogBox.ignoreAllLogs(false);
 
 const AppInitializer = () => {
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(loadFavorites());
+  }, []);
 
   useEffect(() => {
     const loadUser = async () => {
