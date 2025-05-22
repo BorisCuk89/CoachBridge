@@ -14,7 +14,7 @@ import TrainerCard from '../../components/TrainerCard.tsx';
 
 const API_URL = 'http://localhost:5001/api/trainers';
 
-const HomeScreen = () => {
+const TrainerListScreen = () => {
   const [trainers, setTrainers] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -112,7 +112,7 @@ const HomeScreen = () => {
   );
 };
 
-export default HomeScreen;
+export default TrainerListScreen;
 
 const styles = StyleSheet.create({
   container: {

@@ -158,6 +158,7 @@ router.post('/:trainerId/training-packages', async (req, res) => {
       coverImage, // ✅ Cover slika
       introVideo, // ✅ Intro video
       videos: validatedVideos, // 📌 Čistimo podatke i obezbeđujemo da nisu prazni
+      createdAt: new Date(),
     };
 
     trainer.trainingPackages.push(newPackage);
@@ -186,6 +187,7 @@ router.post('/:trainerId/meal-plans', async (req, res) => {
       price,
       coverImage, // ✅ Cover slika
       introVideo, // ✅ Intro video
+      createdAt: new Date(),
     };
 
     trainer.mealPlans.push(newPlan);
@@ -243,6 +245,51 @@ router.post('/request-payout/:trainerId', async (req, res) => {
     res.json({msg: 'Isplata zatražena', payoutAmount});
   } catch (err) {
     console.error('❌ Greška pri slanju zahteva za isplatu:', err);
+    res.status(500).json({msg: 'Greška na serveru'});
+  }
+});
+
+// 📌 Dohvati feed – svi treninzi i planovi ishrane od svih trenera
+router.get('/feed', async (req, res) => {
+  try {
+    const trainers = await Trainer.find();
+
+    const allItems = [];
+
+    trainers.forEach(trainer => {
+      // Dodaj sve trening pakete
+      trainer.trainingPackages.forEach(pkg => {
+        allItems.push({
+          ...pkg.toObject(),
+          type: 'training',
+          trainerId: trainer._id,
+          trainerName: trainer.name,
+          trainerImage: trainer.profileImage,
+          createdAt: pkg.createdAt,
+        });
+      });
+
+      // Dodaj sve planove ishrane
+      trainer.mealPlans.forEach(plan => {
+        allItems.push({
+          ...plan.toObject(),
+          type: 'meal',
+          trainerId: trainer._id,
+          trainerName: trainer.name,
+          trainerImage: trainer.profileImage,
+          createdAt: plan.createdAt,
+        });
+      });
+    });
+
+    // Sortiraj po datumu (najnovije prvo)
+    const sortedFeed = allItems.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    );
+
+    res.json(sortedFeed);
+  } catch (err) {
+    console.error('❌ Greška pri dohvatanju feed-a:', err);
     res.status(500).json({msg: 'Greška na serveru'});
   }
 });

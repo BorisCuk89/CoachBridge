@@ -3,6 +3,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'http://localhost:5001/api/trainers';
 
+interface FeedItem {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  type: 'training' | 'meal';
+  trainerId: string;
+  trainerName: string;
+  trainerImage: string;
+  createdAt: string;
+}
+
 // 📌 Interfejs za trening pakete i planove ishrane
 interface TrainingPackage {
   _id: string;
@@ -28,6 +40,8 @@ interface TrainerState {
   trainings: TrainingPackage[];
   mealPlans: MealPlan[];
   wallet: {totalEarnings: number; availableForPayout: number};
+  feed: FeedItem[];
+  favorites: FeedItem[];
   loading: boolean;
   error: string | null;
 }
@@ -37,6 +51,8 @@ const initialState: TrainerState = {
   trainings: [],
   mealPlans: [],
   wallet: {totalEarnings: 0, availableForPayout: 0},
+  feed: [],
+  favorites: [],
   loading: false,
   error: null,
 };
@@ -198,11 +214,42 @@ export const requestPayout = createAsyncThunk(
   },
 );
 
+export const fetchGlobalFeed = createAsyncThunk(
+  'trainer/fetchGlobalFeed',
+  async (_, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/feed`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.msg || 'Greška pri dohvatanju feed-a');
+      }
+
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
 // 📌 **Redux slice**
 const trainerSlice = createSlice({
   name: 'trainer',
   initialState,
-  reducers: {},
+  reducers: {
+    toggleFavorite: (state, action: PayloadAction<FeedItem>) => {
+      const exists = state.favorites.find(
+        item => item._id === action.payload._id,
+      );
+      if (exists) {
+        state.favorites = state.favorites.filter(
+          item => item._id !== action.payload._id,
+        );
+      } else {
+        state.favorites.push(action.payload);
+      }
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchTrainerContent.pending, state => {
@@ -250,8 +297,21 @@ const trainerSlice = createSlice({
       })
       .addCase(requestPayout.fulfilled, (state, action) => {
         state.wallet.availableForPayout = 0; // Resetujemo stanje
+      })
+      .addCase(fetchGlobalFeed.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchGlobalFeed.fulfilled, (state, action) => {
+        state.loading = false;
+        state.feed = action.payload;
+      })
+      .addCase(fetchGlobalFeed.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
+export const {toggleFavorite} = trainerSlice.actions;
 export default trainerSlice.reducer;

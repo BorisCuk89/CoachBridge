@@ -1,8 +1,8 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/client/HomeScreen';
-import ClientProfileScreen from '../screens/client/ClientProfileScreen';
-import SettingsScreen from '../screens/client/SettingsScreen';
+import TrainerListScreen from '../screens/client/TrainerListScreen.tsx';
+import HomeFeedScreen from '../screens/client/HomeFeedScreen.tsx';
+import FavoritesScreen from '../screens/client/FavoritesScreen.tsx';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const Tab = createBottomTabNavigator();
@@ -27,22 +27,43 @@ const ClientTabs = () => {
         },
         tabBarActiveTintColor: '#1b1a1a',
         tabBarInactiveTintColor: '#333',
-        tabBarIcon: ({color, focused, size}) => {
-          let iconName = 'home';
+        tabBarIcon: ({color, focused}) => {
+          let iconName: string;
 
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          } else if (route.name === 'Settings') {
-            iconName = focused ? 'settings' : 'settings-outline';
+          if (route.name === 'HomeFeed') {
+            iconName = focused ? 'newspaper' : 'newspaper-outline';
+          } else if (route.name === 'TrainerList') {
+            iconName = focused ? 'people' : 'people-outline';
+          } else {
+            iconName = 'ellipse';
           }
+
           return <Icon name={iconName} size={22} color={color} />;
         },
       })}>
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Profile" component={ClientProfileScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen
+        name="HomeFeed"
+        component={HomeFeedScreen}
+        options={{tabBarLabel: 'Početna'}}
+      />
+      <Tab.Screen
+        name="Favorites"
+        component={FavoritesScreen} // Napravi ovaj ekran
+        options={{
+          tabBarIcon: ({color, focused}) => (
+            <Icon
+              name={focused ? 'star' : 'star-outline'}
+              size={22}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="TrainerList"
+        component={TrainerListScreen}
+        options={{tabBarLabel: 'Treneri'}}
+      />
     </Tab.Navigator>
   );
 };

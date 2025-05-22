@@ -31,6 +31,7 @@ const TrainerSchema = new mongoose.Schema(
             videoUrl: {type: String, required: true}, // URL videa
           },
         ],
+        createdAt: {type: Date, default: Date.now},
       },
     ],
     mealPlans: [
@@ -40,6 +41,7 @@ const TrainerSchema = new mongoose.Schema(
         price: {type: Number, required: true},
         coverImage: {type: String}, // ✅ Cover slika paketa
         introVideo: {type: String}, // ✅ Intro video
+        createdAt: {type: Date, default: Date.now},
       },
     ],
     wallet: {
