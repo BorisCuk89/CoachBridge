@@ -1,9 +1,8 @@
 import React, {useState} from 'react';
-import {View, Text, FlatList, TextInput, StyleSheet, Image} from 'react-native';
+import {View, Text, FlatList, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../store/store';
 import FeedCard from '../../components/FeedCard';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import HeaderMenu from '../../components/HeaderMenu.tsx';
 
 const FavoritesScreen = () => {
@@ -19,22 +18,6 @@ const FavoritesScreen = () => {
   return (
     <View style={styles.container}>
       <HeaderMenu />
-
-      <View style={styles.searchContainer}>
-        <Ionicons
-          name="search"
-          size={20}
-          color="#d8f24e"
-          style={styles.searchIcon}
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Pretraži omiljene..."
-          placeholderTextColor="#888"
-          value={search}
-          onChangeText={setSearch}
-        />
-      </View>
 
       {filteredFavorites.length > 0 ? (
         <FlatList

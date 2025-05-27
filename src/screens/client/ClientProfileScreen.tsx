@@ -8,9 +8,11 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../store/store';
+import HeaderMenu from '../../components/HeaderMenu.tsx';
 
 const {width} = Dimensions.get('window');
 
@@ -48,72 +50,74 @@ const ClientProfileScreen = ({navigation}) => {
       : 'Još uvek nema kupljenih planova ishrane.';
 
   return (
-    <ScrollView
-      style={{flex: 1, backgroundColor: '#1b1a1a'}}
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}>
-      {/* Profilni podaci */}
-      <View style={styles.profileSection}>
-        <Image
-          source={
-            user?.profileImage
-              ? {uri: user.profileImage}
-              : require('../../assets/avatar-placeholder.png')
-          }
-          style={styles.avatar}
-        />
-        <Text style={styles.name}>{user?.name}</Text>
-        <Text style={styles.email}>{user?.email}</Text>
-      </View>
+    <SafeAreaView style={{flex: 1, backgroundColor: '#1b1a1a'}}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}>
+        <HeaderMenu />
+        {/* Profilni podaci */}
+        <View style={styles.profileSection}>
+          <Image
+            source={
+              user?.profileImage
+                ? {uri: user.profileImage}
+                : require('../../assets/avatar-placeholder.png')
+            }
+            style={styles.avatar}
+          />
+          <Text style={styles.name}>{user?.name}</Text>
+          <Text style={styles.email}>{user?.email}</Text>
+        </View>
 
-      {/* Toggle tabovi */}
-      <View style={styles.toggleContainer}>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            selectedTab === 'packages' && styles.activeToggle,
-          ]}
-          onPress={() => setSelectedTab('packages')}>
-          <Text
+        {/* Toggle tabovi */}
+        <View style={styles.toggleContainer}>
+          <TouchableOpacity
             style={[
-              styles.toggleText,
-              selectedTab === 'packages' && styles.activeToggleText,
-            ]}>
-            Trening Paketi
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            selectedTab === 'meals' && styles.activeToggle,
-          ]}
-          onPress={() => setSelectedTab('meals')}>
-          <Text
+              styles.toggleButton,
+              selectedTab === 'packages' && styles.activeToggle,
+            ]}
+            onPress={() => setSelectedTab('packages')}>
+            <Text
+              style={[
+                styles.toggleText,
+                selectedTab === 'packages' && styles.activeToggleText,
+              ]}>
+              Trening Paketi
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             style={[
-              styles.toggleText,
-              selectedTab === 'meals' && styles.activeToggleText,
-            ]}>
-            Planovi Ishrane
-          </Text>
-        </TouchableOpacity>
-      </View>
+              styles.toggleButton,
+              selectedTab === 'meals' && styles.activeToggle,
+            ]}
+            onPress={() => setSelectedTab('meals')}>
+            <Text
+              style={[
+                styles.toggleText,
+                selectedTab === 'meals' && styles.activeToggleText,
+              ]}>
+              Planovi Ishrane
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Sadržaj izabrane sekcije */}
-      {activeList?.length > 0 ? (
-        <FlatList
-          data={activeList}
-          keyExtractor={item => item._id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{gap: 12, paddingVertical: 10}}
-          renderItem={({item}) =>
-            renderCard(item, selectedTab === 'packages' ? 'package' : 'meal')
-          }
-        />
-      ) : (
-        <Text style={styles.emptyText}>{emptyMessage}</Text>
-      )}
-    </ScrollView>
+        {/* Sadržaj izabrane sekcije */}
+        {activeList?.length > 0 ? (
+          <FlatList
+            data={activeList}
+            keyExtractor={item => item._id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{gap: 12, paddingVertical: 10}}
+            renderItem={({item}) =>
+              renderCard(item, selectedTab === 'packages' ? 'package' : 'meal')
+            }
+          />
+        ) : (
+          <Text style={styles.emptyText}>{emptyMessage}</Text>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -121,10 +125,7 @@ export default ClientProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    backgroundColor: '#1b1a1a',
-    paddingBottom: 60,
-    paddingTop: 100,
+    paddingHorizontal: 20,
   },
   profileSection: {
     alignItems: 'center',

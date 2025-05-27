@@ -3,6 +3,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import TrainerListScreen from '../screens/client/TrainerListScreen.tsx';
 import HomeFeedScreen from '../screens/client/HomeFeedScreen.tsx';
 import FavoritesScreen from '../screens/client/FavoritesScreen.tsx';
+import ClientProfile from '../screens/client/ClientProfileScreen.tsx';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const Tab = createBottomTabNavigator();
@@ -32,8 +33,8 @@ const ClientTabs = () => {
 
           if (route.name === 'HomeFeed') {
             iconName = focused ? 'newspaper' : 'newspaper-outline';
-          } else if (route.name === 'TrainerList') {
-            iconName = focused ? 'people' : 'people-outline';
+          } else if (route.name === 'ClientProfile') {
+            iconName = focused ? 'person' : 'person-outline';
           } else {
             iconName = 'ellipse';
           }
@@ -60,9 +61,9 @@ const ClientTabs = () => {
         }}
       />
       <Tab.Screen
-        name="TrainerList"
-        component={TrainerListScreen}
-        options={{tabBarLabel: 'Treneri'}}
+        name="ClientProfile"
+        component={ClientProfile}
+        options={{tabBarLabel: 'Moj Profil'}}
       />
     </Tab.Navigator>
   );

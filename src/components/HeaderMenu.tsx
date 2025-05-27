@@ -33,13 +33,6 @@ const HeaderMenu = () => {
           <Menu.Item
             onPress={() => {
               closeMenu();
-              navigation.navigate('ClientProfile');
-            }}
-            title="Profil"
-          />
-          <Menu.Item
-            onPress={() => {
-              closeMenu();
               navigation.navigate('SettingsScreen');
             }}
             title="Podešavanja"
@@ -69,6 +62,8 @@ export default HeaderMenu;
 const styles = StyleSheet.create({
   container: {
     paddingTop: 15,
+    backgroundColor: '#1b1a1a',
+    position: 'relative',
   },
   menuContainer: {
     position: 'absolute',
