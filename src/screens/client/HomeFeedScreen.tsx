@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Image,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useDispatch, useSelector} from 'react-redux';
@@ -16,6 +17,7 @@ import {fetchGlobalFeed} from '../../store/trainer/trainerSlice';
 import FeedCard from '../../components/FeedCard.tsx';
 import {Menu, Divider} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
+import {logoutUser} from '../../store/auth/authSlice.ts';
 
 const HomeFeedScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -59,6 +61,13 @@ const HomeFeedScreen = () => {
 
   const renderItem = ({item}) => <FeedCard item={item} />;
 
+  const handleLogout = () => {
+    Alert.alert('Odjava', 'Da li ste sigurni da želite da se odjavite?', [
+      {text: 'Otkaži', style: 'cancel'},
+      {text: 'Odjavi se', onPress: () => dispatch(logoutUser() as any)},
+    ]);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.menuContainer}>
@@ -69,20 +78,21 @@ const HomeFeedScreen = () => {
             <Ionicons name="menu" size={24} color="#fff" onPress={openMenu} />
           }>
           <Menu.Item
-            onPress={() => navigation.navigate('ClientProfile')}
+            onPress={() => {
+              closeMenu();
+              navigation.navigate('ClientProfile');
+            }}
             title="Profil"
           />
           <Menu.Item
-            onPress={() => navigation.navigate('Settings')}
+            onPress={() => {
+              closeMenu();
+              navigation.navigate('SettingsScreen');
+            }}
             title="Podešavanja"
           />
           <Divider />
-          <Menu.Item
-            onPress={() => {
-              /* logout logic */
-            }}
-            title="Odjavi se"
-          />
+          <Menu.Item onPress={handleLogout} title="Odjavi se" />
         </Menu>
       </View>
       <Image source={require('../../assets/logo.jpg')} style={styles.logo} />

@@ -16,6 +16,7 @@ import {
   resetDeleteAccountStatus,
 } from '../../store/auth/authSlice.ts';
 import {RootState} from '../../store/store.ts';
+import Ionicons from 'react-native-vector-icons/Ionicons.js';
 
 const SettingsScreen = ({navigation}) => {
   const dispatch = useDispatch();
@@ -78,6 +79,12 @@ const SettingsScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={24} color="#d8f24e" />
+      </TouchableOpacity>
+
       <Text style={styles.heading}>Podešavanja</Text>
 
       {/* Sekcija: Sistem */}
@@ -133,9 +140,9 @@ const SettingsScreen = ({navigation}) => {
       </TouchableOpacity>
 
       {/* Logout */}
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Odjavi se</Text>
-      </TouchableOpacity>
+      {/*<TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>*/}
+      {/*  <Text style={styles.logoutText}>Odjavi se</Text>*/}
+      {/*</TouchableOpacity>*/}
     </View>
   );
 };
@@ -154,6 +161,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 30,
     color: '#fff',
+    textAlign: 'center',
   },
   settingRow: {
     flexDirection: 'row',
@@ -194,5 +202,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
     fontSize: 14,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 105,
+    left: 20,
+    zIndex: 1,
   },
 });

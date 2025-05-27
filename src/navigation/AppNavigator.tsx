@@ -21,6 +21,7 @@ import TrainerProfileScreen from '../screens/client/TrainerProfileScreen.tsx';
 import TrainerPackageDetails from '../screens/client/TrainerPackageDetailsScreen.tsx';
 import MealPlanDetails from '../screens/client/MealPlanDetailsScreen.tsx';
 import ClientProfileScreen from '../screens/client/ClientProfileScreen';
+import SettingsScreen from '../screens/client/SettingsScreen.tsx';
 // Trainer Screen
 import TrainerDashboardScreen from '../screens/trainer/TrainerDashboardScreen.tsx';
 import AddPackageScreen from '../screens/trainer/AddPackageScreen.tsx';
@@ -143,6 +144,10 @@ const AppNavigator = () => {
                   <Stack.Screen
                     name="PaymentStatus"
                     component={PaymentStatusScreen}
+                  />
+                  <Stack.Screen
+                    name="SettingsScreen"
+                    component={SettingsScreen}
                   />
                 </>
               )
