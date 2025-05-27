@@ -294,4 +294,20 @@ router.get('/feed', async (req, res) => {
   }
 });
 
+// ✅ Dohvati jednog trenera po ID-ju
+router.get('/:id', async (req, res) => {
+  try {
+    const trainer = await Trainer.findById(req.params.id);
+
+    if (!trainer) {
+      return res.status(404).json({msg: 'Trener nije pronađen'});
+    }
+
+    res.json(trainer);
+  } catch (err) {
+    console.error('❌ Greška pri dohvatanju trenera:', err);
+    res.status(500).json({msg: 'Greška na serveru'});
+  }
+});
+
 module.exports = router;

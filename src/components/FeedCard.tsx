@@ -2,8 +2,10 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {toggleFavorite} from '../store/trainer/trainerSlice';
-import Ionicons from 'react-native-vector-icons/Ionicons'; // ✅ OVO NEDOSTAJE
-import {RootState} from '../store/store'; // ✅ Treba i ovo ako koristiš RootState
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {RootState} from '../store/store';
+import {useNavigation} from '@react-navigation/native';
+import {fetchTrainerById} from '../store/trainer/trainerSlice';
 
 const FeedCard = ({item}) => {
   const [coverError, setCoverError] = useState(false);
@@ -11,6 +13,7 @@ const FeedCard = ({item}) => {
   const dispatch = useDispatch(); // ✅ MORA da postoji
   const {favorites} = useSelector((state: RootState) => state.trainer);
   const isFavorite = favorites.some(fav => fav._id === item._id);
+  const navigation = useNavigation();
 
   const getCoverImage = () => {
     if (coverError || !item.coverImage) {
@@ -21,8 +24,29 @@ const FeedCard = ({item}) => {
     return {uri: item.coverImage};
   };
 
+  const handleTrainerPress = async () => {
+    try {
+      const result = await dispatch(fetchTrainerById(item.trainerId)).unwrap();
+      navigation.navigate('TrainerProfile', {trainer: result});
+    } catch (error) {
+      console.error('❌ Greška pri dohvaćanju trenera:', error);
+    }
+  };
+
   return (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => {
+        if (item.type === 'training') {
+          navigation.navigate('TrainerPackageDetails', {
+            trainingPackage: item,
+          });
+        } else {
+          navigation.navigate('MealPlanDetails', {
+            mealPlan: item,
+          });
+        }
+      }}>
       <Image
         source={getCoverImage()}
         style={styles.cover}
@@ -50,7 +74,9 @@ const FeedCard = ({item}) => {
             {item.price}€
           </Text>
 
-          <View style={styles.trainerWrap}>
+          <TouchableOpacity
+            style={styles.trainerWrap}
+            onPress={handleTrainerPress}>
             <Image
               source={
                 trainerError || !item.trainerImage
@@ -61,7 +87,7 @@ const FeedCard = ({item}) => {
               onError={() => setTrainerError(true)}
             />
             <Text style={styles.trainerText}>{item.trainerName}</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     </TouchableOpacity>

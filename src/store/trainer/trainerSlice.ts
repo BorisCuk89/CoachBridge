@@ -247,6 +247,21 @@ export const loadFavorites = createAsyncThunk(
   },
 );
 
+export const fetchTrainerById = createAsyncThunk(
+  'trainer/fetchTrainerById',
+  async (trainerId: string, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/${trainerId}`);
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.msg || 'Greška pri dohvatanju trenera');
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
 // 📌 **Redux slice**
 const trainerSlice = createSlice({
   name: 'trainer',
