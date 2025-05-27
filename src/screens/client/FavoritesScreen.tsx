@@ -4,6 +4,7 @@ import {useSelector} from 'react-redux';
 import {RootState} from '../../store/store';
 import FeedCard from '../../components/FeedCard';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import HeaderMenu from '../../components/HeaderMenu.tsx';
 
 const FavoritesScreen = () => {
   const {favorites} = useSelector((state: RootState) => state.trainer);
@@ -17,7 +18,7 @@ const FavoritesScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../../assets/logo.jpg')} style={styles.logo} />
+      <HeaderMenu />
 
       <View style={styles.searchContainer}>
         <Ionicons
@@ -59,13 +60,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#1b1a1a',
     paddingHorizontal: 20,
     paddingTop: 60,
-  },
-  logo: {
-    width: 160,
-    height: 40,
-    resizeMode: 'contain',
-    alignSelf: 'center',
-    marginBottom: 24,
   },
   searchContainer: {
     flexDirection: 'row',

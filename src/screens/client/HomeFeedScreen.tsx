@@ -6,7 +6,6 @@ import {
   FlatList,
   Text,
   ActivityIndicator,
-  Image,
   RefreshControl,
   Alert,
 } from 'react-native';
@@ -15,9 +14,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../store/store';
 import {fetchGlobalFeed} from '../../store/trainer/trainerSlice';
 import FeedCard from '../../components/FeedCard.tsx';
-import {Menu, Divider} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
 import {logoutUser} from '../../store/auth/authSlice.ts';
+import HeaderMenu from '../../components/HeaderMenu';
 
 const HomeFeedScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,11 +25,6 @@ const HomeFeedScreen = () => {
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<'all' | 'training' | 'meal'>('all');
-  const [visible, setVisible] = useState(false);
-  const openMenu = () => setVisible(true);
-  const closeMenu = () => setVisible(false);
-
-  const navigation = useNavigation();
 
   const loadFeed = useCallback(() => {
     dispatch(fetchGlobalFeed());
@@ -70,32 +63,7 @@ const HomeFeedScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.menuContainer}>
-        <Menu
-          visible={visible}
-          onDismiss={closeMenu}
-          anchor={
-            <Ionicons name="menu" size={24} color="#fff" onPress={openMenu} />
-          }>
-          <Menu.Item
-            onPress={() => {
-              closeMenu();
-              navigation.navigate('ClientProfile');
-            }}
-            title="Profil"
-          />
-          <Menu.Item
-            onPress={() => {
-              closeMenu();
-              navigation.navigate('SettingsScreen');
-            }}
-            title="Podešavanja"
-          />
-          <Divider />
-          <Menu.Item onPress={handleLogout} title="Odjavi se" />
-        </Menu>
-      </View>
-      <Image source={require('../../assets/logo.jpg')} style={styles.logo} />
+      <HeaderMenu />
 
       <View style={styles.searchContainer}>
         <Ionicons

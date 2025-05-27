@@ -9,8 +9,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Image} from 'react-native';
 import TrainerCard from '../../components/TrainerCard.tsx';
+import HeaderMenu from '../../components/HeaderMenu.tsx';
 
 const API_URL = 'http://localhost:5001/api/trainers';
 
@@ -43,7 +43,7 @@ const TrainerListScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../../assets/logo.jpg')} style={styles.logo} />
+      <HeaderMenu />
 
       <View style={styles.searchContainer}>
         <Ionicons
@@ -120,26 +120,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#1b1a1a',
     paddingHorizontal: 20,
     paddingTop: 60,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 16,
-  },
-  logoutText: {
-    color: '#d8f24e',
-    textAlign: 'center',
-    marginBottom: 16,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  logo: {
-    width: 160,
-    height: 40,
-    resizeMode: 'contain',
-    alignSelf: 'center',
-    marginBottom: 24,
   },
   searchContainer: {
     flexDirection: 'row',
