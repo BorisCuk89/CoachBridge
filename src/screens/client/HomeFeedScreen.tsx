@@ -14,6 +14,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../store/store';
 import {fetchGlobalFeed} from '../../store/trainer/trainerSlice';
 import FeedCard from '../../components/FeedCard.tsx';
+import {Menu, Divider} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
 
 const HomeFeedScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -23,6 +25,11 @@ const HomeFeedScreen = () => {
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<'all' | 'training' | 'meal'>('all');
+  const [visible, setVisible] = useState(false);
+  const openMenu = () => setVisible(true);
+  const closeMenu = () => setVisible(false);
+
+  const navigation = useNavigation();
 
   const loadFeed = useCallback(() => {
     dispatch(fetchGlobalFeed());
@@ -54,6 +61,30 @@ const HomeFeedScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.menuContainer}>
+        <Menu
+          visible={visible}
+          onDismiss={closeMenu}
+          anchor={
+            <Ionicons name="menu" size={24} color="#fff" onPress={openMenu} />
+          }>
+          <Menu.Item
+            onPress={() => navigation.navigate('ClientProfile')}
+            title="Profil"
+          />
+          <Menu.Item
+            onPress={() => navigation.navigate('Settings')}
+            title="Podešavanja"
+          />
+          <Divider />
+          <Menu.Item
+            onPress={() => {
+              /* logout logic */
+            }}
+            title="Odjavi se"
+          />
+        </Menu>
+      </View>
       <Image source={require('../../assets/logo.jpg')} style={styles.logo} />
 
       <View style={styles.searchContainer}>
@@ -177,5 +208,11 @@ const styles = StyleSheet.create({
   filterButtonActive: {
     color: '#1b1a1a',
     backgroundColor: '#d8f24e',
+  },
+  menuContainer: {
+    position: 'absolute',
+    top: 80,
+    right: 20,
+    zIndex: 10,
   },
 });

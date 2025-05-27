@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {loadUserFromStorage} from './store/auth/authSlice';
 import {LogBox} from 'react-native';
 import {loadFavorites} from './store/trainer/trainerSlice';
+import {Provider as PaperProvider} from 'react-native-paper';
 
 LogBox.ignoreAllLogs(false);
 
@@ -36,7 +37,11 @@ const AppInitializer = () => {
     loadUser();
   }, [dispatch]);
 
-  return <AppNavigator />;
+  return (
+    <PaperProvider>
+      <AppNavigator />
+    </PaperProvider>
+  );
 };
 
 const App = () => {
