@@ -8,12 +8,12 @@ import {
   StyleSheet,
   ActivityIndicator,
   Modal,
-  Button,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
-import {RootState} from '../../store/store.ts';
-import {fetchTrainerContent} from '../../store/trainer/trainerSlice.ts';
-import {logoutUser} from '../../store/auth/authSlice.ts';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {RootState} from '../../store/store';
+import {fetchTrainerContent} from '../../store/trainer/trainerSlice';
+import {logoutUser} from '../../store/auth/authSlice';
 
 const TrainerDashboardScreen = ({navigation}) => {
   const {user} = useSelector((state: RootState) => state.auth);
@@ -42,7 +42,7 @@ const TrainerDashboardScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      {/* 📌 Prikaz profila trenera */}
+      {/* Profil */}
       <View style={styles.profileContainer}>
         <Image
           source={{
@@ -51,42 +51,56 @@ const TrainerDashboardScreen = ({navigation}) => {
           style={styles.profileImage}
         />
         <Text style={styles.name}>{user?.name}</Text>
-        <Button
-          title="Odjavi se"
-          onPress={() => dispatch(logoutUser() as any)}
-        />
+        <TouchableOpacity onPress={() => dispatch(logoutUser() as any)}>
+          <Text style={styles.logoutText}>Odjavi se</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>{user?.title}</Text>
         <Text style={styles.description}>{user?.description}</Text>
       </View>
 
-      <Button
-        title="Trainer Wallet"
+      {/* Wallet */}
+      <TouchableOpacity
         onPress={() => navigation.navigate('TrainerWallet')}
-      />
+        style={styles.walletButton}>
+        <Ionicons name="wallet-outline" size={22} color="#1b1a1a" />
+        <Text style={styles.walletText}>Trainer Wallet</Text>
+      </TouchableOpacity>
 
-      {/* 📌 Sortiranje sadržaja */}
+      {/* Filter */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
-          onPress={() => setContentType('trainings')}
-          style={
-            contentType === 'trainings'
-              ? styles.activeFilter
-              : styles.filterButton
-          }>
-          <Text style={styles.filterText}>Treninzi</Text>
+          style={[
+            styles.filterButton,
+            contentType === 'trainings' && styles.activeFilter,
+          ]}
+          onPress={() => setContentType('trainings')}>
+          <Text
+            style={[
+              styles.filterText,
+              contentType === 'trainings' && styles.activeFilterText,
+            ]}>
+            Treninzi
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => setContentType('plans')}
-          style={
-            contentType === 'plans' ? styles.activeFilter : styles.filterButton
-          }>
-          <Text style={styles.filterText}>Planovi ishrane</Text>
+          style={[
+            styles.filterButton,
+            contentType === 'plans' && styles.activeFilter,
+          ]}
+          onPress={() => setContentType('plans')}>
+          <Text
+            style={[
+              styles.filterText,
+              contentType === 'plans' && styles.activeFilterText,
+            ]}>
+            Planovi ishrane
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {/* 📌 Lista trening paketa ili planova ishrane */}
+      {/* Lista */}
       {loading ? (
-        <ActivityIndicator size="large" color="#007bff" />
+        <ActivityIndicator size="large" color="#d8f24e" />
       ) : data.length === 0 ? (
         <Text style={styles.emptyText}>Trenutno nema sadržaja</Text>
       ) : (
@@ -95,31 +109,31 @@ const TrainerDashboardScreen = ({navigation}) => {
           keyExtractor={(item, index) => item._id || index.toString()}
           renderItem={({item}) => (
             <View style={styles.card}>
-              <View style={styles.coverImageWrap}>
-                <Image
-                  source={{uri: item.coverImage}}
-                  style={styles.coverImage}
-                />
+              <Image
+                source={{uri: item.coverImage}}
+                style={styles.coverImage}
+              />
+              <View style={styles.cardInfo}>
+                <Text style={styles.cardTitle}>{item.title}</Text>
+                <Text style={styles.cardDescription}>{item.description}</Text>
+                <Text style={styles.cardPrice}>Cena: {item.price}€</Text>
               </View>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardDescription}>{item.description}</Text>
-              <Text style={styles.cardPrice}>Cena: {item.price}€</Text>
             </View>
           )}
         />
       )}
 
-      {/* 📌 Dugme za dodavanje */}
+      {/* Dodaj dugme */}
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => setModalVisible(true)}>
-        <Text style={styles.addButtonText}>+</Text>
+        <Ionicons name="add" size={30} color="#fff" />
       </TouchableOpacity>
 
-      {/* 📌 Modal za izbor između treninga i plana ishrane */}
+      {/* Modal */}
       <Modal
         visible={modalVisible}
-        transparent={true}
+        transparent
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalContainer}>
@@ -157,40 +171,106 @@ const TrainerDashboardScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#f5f5f5', padding: 10},
-  profileContainer: {alignItems: 'center', marginBottom: 20},
-  profileImage: {width: 100, height: 100, borderRadius: 50, marginBottom: 10},
-  name: {fontSize: 22, fontWeight: 'bold'},
-  title: {fontSize: 16, color: '#555'},
-  description: {fontSize: 14, color: '#777', textAlign: 'center', marginTop: 5},
+  container: {
+    flex: 1,
+    backgroundColor: '#1b1a1a',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+  },
+  profileContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#444',
+    marginBottom: 10,
+  },
+  name: {fontSize: 20, fontWeight: 'bold', color: '#fff'},
+  logoutText: {color: '#d8f24e', fontWeight: 'bold', marginTop: 6},
+  title: {fontSize: 14, color: '#ccc'},
+  description: {fontSize: 13, color: '#888', textAlign: 'center', marginTop: 4},
+  walletButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#d8f24e',
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginVertical: 12,
+  },
+  walletText: {
+    marginLeft: 8,
+    color: '#1b1a1a',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
   filterContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 10,
+    backgroundColor: '#2b2b2b',
+    borderRadius: 12,
+    marginBottom: 16,
   },
   filterButton: {
-    padding: 10,
-    marginHorizontal: 5,
-    borderRadius: 5,
-    backgroundColor: '#ddd',
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 12,
+  },
+  filterText: {
+    color: '#ccc',
+    fontWeight: '500',
   },
   activeFilter: {
-    padding: 10,
-    marginHorizontal: 5,
-    borderRadius: 5,
-    backgroundColor: '#007bff',
+    backgroundColor: '#d8f24e',
   },
-  filterText: {color: '#fff', fontWeight: 'bold'},
-  emptyText: {textAlign: 'center', fontSize: 16, color: '#888', marginTop: 20},
+  activeFilterText: {
+    color: '#1b1a1a',
+    fontWeight: 'bold',
+  },
+  emptyText: {
+    color: '#888',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 20,
+  },
   card: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
+    flexDirection: 'row',
+    backgroundColor: '#2a2a2a',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 12,
   },
-  cardTitle: {fontSize: 18, fontWeight: 'bold'},
-  cardDescription: {fontSize: 14, color: '#555', marginTop: 5},
-  cardPrice: {fontSize: 16, fontWeight: 'bold', marginTop: 5},
+  coverImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 12,
+    backgroundColor: '#555',
+  },
+  cardInfo: {
+    flex: 1,
+  },
+  cardTitle: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  cardDescription: {
+    fontSize: 13,
+    color: '#ccc',
+    marginTop: 2,
+  },
+  cardPrice: {
+    fontSize: 14,
+    color: '#d8f24e',
+    marginTop: 4,
+    fontWeight: '600',
+  },
   addButton: {
     position: 'absolute',
     bottom: 20,
@@ -202,7 +282,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  addButtonText: {color: '#fff', fontSize: 30, fontWeight: 'bold'},
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -210,25 +289,28 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: '#2a2a2a',
     padding: 20,
     borderRadius: 10,
     width: 300,
     alignItems: 'center',
   },
-  modalTitle: {fontSize: 18, fontWeight: 'bold', marginBottom: 15},
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 15,
+  },
   modalButton: {
     width: '100%',
     padding: 12,
     marginTop: 10,
-    backgroundColor: '#007bff',
+    backgroundColor: '#d8f24e',
     borderRadius: 5,
     alignItems: 'center',
   },
   cancelButton: {backgroundColor: '#dc3545'},
-  modalButtonText: {color: '#fff', fontSize: 16, fontWeight: 'bold'},
-  coverImageWrap: {backgroundColor: 'grey', width: 50, height: 50},
-  coverImage: {maxWidth: '100%'},
+  modalButtonText: {color: '#1b1a1a', fontSize: 16, fontWeight: 'bold'},
 });
 
 export default TrainerDashboardScreen;
