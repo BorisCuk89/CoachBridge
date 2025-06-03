@@ -19,13 +19,13 @@ const TrainerWalletScreen = ({navigation}) => {
     <View style={styles.container}>
       <Text style={styles.heading}>💰 Tvoj Wallet</Text>
       <Text style={styles.amount}>
-        Dostupno za isplatu: {wallet.availableForPayout}€
+        Dostupno za isplatu: {wallet?.availableForPayout}€
       </Text>
 
       <Button
         title="Zatraži isplatu"
         onPress={() => dispatch(requestPayout(user.id))}
-        disabled={wallet.availableForPayout === 0}
+        disabled={wallet?.availableForPayout === 0}
       />
       {/* Dugme za povratak */}
       <Button title="Nazad" onPress={() => navigation.goBack()} />

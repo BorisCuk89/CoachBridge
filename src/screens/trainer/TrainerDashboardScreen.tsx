@@ -38,6 +38,8 @@ const TrainerDashboardScreen = ({navigation}) => {
     }
   }, [contentType, dispatch, user]);
 
+  console.log('user ', user);
+
   const data = contentType === 'trainings' ? trainings : mealPlans;
 
   return (

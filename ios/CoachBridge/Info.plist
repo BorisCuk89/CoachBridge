@@ -76,5 +76,15 @@
       <string>Octicons.ttf</string>
       <string>Zocial.ttf</string>
     </array>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Potrebno za izbor profilne slike.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Potrebno za korišćenje kamere.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Potrebno za video snimanje.</string>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+    <key>UIFileSharingEnabled</key>
+    <true/>
 </dict>
 </plist>

@@ -12,12 +12,16 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Image,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {registerTrainer} from '../../store/auth/authSlice.ts';
 import {RootState} from '../../store/store.ts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {ScrollView} from 'react-native';
+import DocumentPicker from 'react-native-document-picker';
+import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+import {API_BASE_URL} from '../../config.js';
 
 const {width} = Dimensions.get('window');
 
@@ -30,10 +34,109 @@ const RegisterTrainerScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [profileImage, setProfileImage] = useState(
-    'https://example.com/default-profile.jpg',
-  );
+  const [profileImage, setProfileImage] = useState('');
   const [certificates, setCertificates] = useState<string[]>([]);
+  const [introVideo, setIntroVideo] = useState('');
+
+  const [isUploadingProfileImage, setIsUploadingProfileImage] = useState(false);
+  const [isUploadingIntroVideo, setIsUploadingIntroVideo] = useState(false);
+  const [isUploadingCertificates, setIsUploadingCertificates] = useState(false);
+
+  const uploadFile = async file => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/upload/single`, {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await response.json();
+    return data.url;
+  };
+
+  const chooseMedia = async (
+    mediaType: 'photo' | 'video',
+    onPick: (uri: string, name: string, type: string) => void,
+  ) => {
+    Alert.alert('Izaberi opciju', 'Kamera ili galerija?', [
+      {
+        text: 'Kamera',
+        onPress: async () => {
+          const result = await launchCamera({mediaType});
+          if (result.assets?.length) {
+            const {uri, fileName: name, type} = result.assets[0];
+            onPick(uri, name || 'default', type || `${mediaType}/*`);
+          }
+        },
+      },
+      {
+        text: 'Galerija',
+        onPress: async () => {
+          const result = await launchImageLibrary({mediaType});
+          if (result.assets?.length) {
+            const {uri, fileName: name, type} = result.assets[0];
+            onPick(uri, name || 'default', type || `${mediaType}/*`);
+          }
+        },
+      },
+      {text: 'Otkaži', style: 'cancel'},
+    ]);
+  };
+
+  const pickImage = () => {
+    chooseMedia('photo', async (uri, name, type) => {
+      try {
+        setIsUploadingProfileImage(true);
+        const url = await uploadFile({uri, name, type});
+        setProfileImage(url);
+      } catch (e) {
+        Alert.alert('Greška', 'Neuspešan upload slike.');
+      } finally {
+        setIsUploadingProfileImage(false);
+      }
+    });
+  };
+
+  const pickIntroVideo = () => {
+    chooseMedia('video', async (uri, name, type) => {
+      try {
+        setIsUploadingIntroVideo(true);
+        const url = await uploadFile({uri, name, type});
+        setIntroVideo(url);
+      } catch (e) {
+        Alert.alert('Greška', 'Neuspešan upload videa.');
+      } finally {
+        setIsUploadingIntroVideo(false);
+      }
+    });
+  };
+
+  const pickCertificates = async () => {
+    try {
+      setIsUploadingCertificates(true);
+      const results = await DocumentPicker.pickMultiple({
+        type: ['image/*', 'application/pdf'],
+      });
+
+      const uploaded = await Promise.all(
+        results.map(async doc => {
+          const url = await uploadFile({
+            uri: doc.uri,
+            name: doc.name,
+            type: doc.type,
+          });
+          return url;
+        }),
+      );
+      setCertificates(uploaded);
+    } catch (err) {
+      if (!DocumentPicker.isCancel(err)) {
+        Alert.alert('Greška', 'Greška pri odabiru fajlova.');
+      }
+    } finally {
+      setIsUploadingCertificates(false);
+    }
+  };
 
   const handleRegister = async () => {
     const resultAction = await dispatch(
@@ -45,6 +148,7 @@ const RegisterTrainerScreen = ({navigation}) => {
         description,
         profileImage,
         certificates,
+        introVideo,
         role: 'trainer',
       }) as any,
     );
@@ -67,7 +171,6 @@ const RegisterTrainerScreen = ({navigation}) => {
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
-          {/* Strelica za nazad */}
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}>
@@ -81,7 +184,6 @@ const RegisterTrainerScreen = ({navigation}) => {
             počinje ovde.
           </Text>
 
-          {/* Forma */}
           <View style={styles.formContainer}>
             <Text style={styles.label}>Ime</Text>
             <TextInput
@@ -130,28 +232,48 @@ const RegisterTrainerScreen = ({navigation}) => {
               onChangeText={setDescription}
             />
 
-            <Text style={styles.label}>Profilna slika (URL)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="https://example.com/slika.jpg"
-              placeholderTextColor="#888"
-              value={profileImage}
-              onChangeText={setProfileImage}
-            />
+            <TouchableOpacity onPress={pickImage}>
+              <Text style={styles.label}>Izaberi profilnu sliku</Text>
+              {isUploadingProfileImage ? (
+                <ActivityIndicator size="small" color="#1b1a1a" />
+              ) : profileImage ? (
+                <Image
+                  source={{uri: profileImage}}
+                  style={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: 8,
+                    marginBottom: 10,
+                  }}
+                />
+              ) : null}
+            </TouchableOpacity>
 
-            <Text style={styles.label}>Sertifikati (odvojeni zarezom)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="sertifikat1.pdf, sertifikat2.pdf"
-              placeholderTextColor="#888"
-              value={certificates.join(',')}
-              onChangeText={text => setCertificates(text.split(','))}
-            />
+            <TouchableOpacity onPress={pickIntroVideo}>
+              <Text style={styles.label}>Dodaj intro video</Text>
+              {isUploadingIntroVideo ? (
+                <ActivityIndicator size="small" color="#1b1a1a" />
+              ) : (
+                <Text style={{color: '#1b1a1a', fontSize: 12}}>
+                  {introVideo ? '✅ Video dodat' : 'Nema videa'}
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={pickCertificates}>
+              <Text style={styles.label}>Dodaj sertifikate (PDF/slike)</Text>
+              {isUploadingCertificates ? (
+                <ActivityIndicator size="small" color="#1b1a1a" />
+              ) : (
+                <Text style={{color: '#1b1a1a', fontSize: 12}}>
+                  {certificates.length} fajlova izabrano
+                </Text>
+              )}
+            </TouchableOpacity>
           </View>
 
           {error && <Text style={styles.errorText}>{error}</Text>}
 
-          {/* Dugme */}
           <TouchableOpacity
             style={styles.button}
             onPress={handleRegister}
@@ -163,7 +285,6 @@ const RegisterTrainerScreen = ({navigation}) => {
             )}
           </TouchableOpacity>
 
-          {/* Link za login */}
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
             <Text style={styles.loginText}>
               Već imate nalog? <Text style={styles.loginLink}>Prijavi se</Text>

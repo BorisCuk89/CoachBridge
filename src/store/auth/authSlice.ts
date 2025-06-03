@@ -1,8 +1,7 @@
 import {createSlice, createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Linking} from 'react-native';
-
-const API_URL = 'http://localhost:5001/api/auth';
+import {API_AUTH_URL, API_BASE_URL, API_TRAINERS_URL} from '../../config.js';
 
 // 📌 Interfejs za korisnika
 interface BaseUser {
@@ -82,7 +81,7 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({email, password}: {email: string; password: string}, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const response = await fetch(`${API_AUTH_URL}/login`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({email, password}),
@@ -116,6 +115,7 @@ export const registerTrainer = createAsyncThunk(
       title,
       description,
       profileImage = '',
+      introVideo = '',
       certificates = [],
       role,
     }: {
@@ -125,29 +125,28 @@ export const registerTrainer = createAsyncThunk(
       title: string;
       description: string;
       profileImage?: string;
+      introVideo?: string;
       certificates?: string[];
       role: string;
     },
     thunkAPI,
   ) => {
     try {
-      const response = await fetch(
-        `http://localhost:5001/api/trainers/register`,
-        {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-            title,
-            description,
-            profileImage,
-            certificates,
-            role,
-          }),
-        },
-      );
+      const response = await fetch(`${API_TRAINERS_URL}/register`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          title,
+          description,
+          profileImage,
+          introVideo,
+          certificates,
+          role,
+        }),
+      });
 
       const data = await response.json();
       if (!response.ok) {
@@ -184,7 +183,7 @@ export const registerClient = createAsyncThunk(
     thunkAPI,
   ) => {
     try {
-      const response = await fetch(`${API_URL}/register`, {
+      const response = await fetch(`${API_AUTH_URL}/register`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -221,7 +220,7 @@ export const purchasePackageAndPlan = createAsyncThunk(
   ) => {
     try {
       const response = await fetch(
-        'http://localhost:5001/api/payments/create-checkout-session',
+        `${API_BASE_URL}/payments/create-checkout-session`,
         {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -262,7 +261,7 @@ export const updatePassword = createAsyncThunk(
     try {
       const token = await AsyncStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/change-password`, {
+      const response = await fetch(`${API_AUTH_URL}/change-password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -291,7 +290,7 @@ export const deleteAccount = createAsyncThunk(
     try {
       const token = await AsyncStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/delete-account`, {
+      const response = await fetch(`${API_AUTH_URL}/delete-account`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -320,14 +319,11 @@ export const forgotPassword = createAsyncThunk(
   'auth/forgotPassword',
   async (email: string, thunkAPI) => {
     try {
-      const response = await fetch(
-        'http://localhost:5001/api/auth/forgot-password',
-        {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({email}),
-        },
-      );
+      const response = await fetch(`${API_AUTH_URL}/forgot-password`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email}),
+      });
 
       const data = await response.json();
       if (!response.ok)

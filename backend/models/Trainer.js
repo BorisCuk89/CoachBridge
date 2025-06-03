@@ -7,6 +7,7 @@ const TrainerSchema = new mongoose.Schema(
     password: {type: String, required: true},
     role: {type: String, required: true},
     profileImage: {type: String}, // URL slike
+    introVideo: {type: String}, // URL introVideo
     title: {type: String, required: true}, // npr. "Personalni trener", "Trener snage"
     description: {type: String, required: true}, // Kratak opis trenera
     certificates: [{type: String}], // Lista URL-ova sertifikata

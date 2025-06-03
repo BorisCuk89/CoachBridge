@@ -1240,6 +1240,48 @@ PODS:
     - React-jsiexecutor
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
+  - react-native-document-picker (9.3.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - react-native-image-picker (8.2.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-safe-area-context (5.3.0):
     - DoubleConversion
     - glog
@@ -1929,6 +1971,8 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-video (from `../node_modules/react-native-video`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -2048,6 +2092,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-document-picker:
+    :path: "../node_modules/react-native-document-picker"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-video:
@@ -2160,6 +2208,8 @@ SPEC CHECKSUMS:
   React-logger: 018826bfd51b9f18e87f67db1590bc510ad20664
   React-Mapbuffer: 3c11cee7737609275c7b66bd0b1de475f094cedf
   React-microtasksnativemodule: 843f352b32aacbe13a9c750190d34df44c3e6c2c
+  react-native-document-picker: bfe9c7d72908d2faba56a4765373c6367090ae2e
+  react-native-image-picker: 84b261e109faa7312bca59f1f65c8f2b22865496
   react-native-safe-area-context: 0f14bce545abcdfbff79ce2e3c78c109f0be283e
   react-native-video: ebad7ae64c4d5302fd43ac76821d180adf4febd6
   React-NativeModulesApple: 88433b6946778bea9c153e27b671de15411bf225

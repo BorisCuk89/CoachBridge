@@ -1,7 +1,6 @@
 import {createSlice, createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_URL = 'http://localhost:5001/api/trainers';
+import {API_TRAINERS_URL} from '../../config.js';
 
 interface FeedItem {
   _id: string;
@@ -68,7 +67,9 @@ export const fetchTrainerContent = createAsyncThunk(
     thunkAPI,
   ) => {
     try {
-      const response = await fetch(`${API_URL}/${trainerId}/${contentType}`);
+      const response = await fetch(
+        `${API_TRAINERS_URL}/${trainerId}/${contentType}`,
+      );
       const data = await response.json();
 
       if (!response.ok) {
@@ -107,7 +108,7 @@ export const addTrainingPackage = createAsyncThunk(
   ) => {
     try {
       const response = await fetch(
-        `${API_URL}/${trainerId}/training-packages`,
+        `${API_TRAINERS_URL}/${trainerId}/training-packages`,
         {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -157,7 +158,7 @@ export const addMealPlan = createAsyncThunk(
   ) => {
     try {
       const response = await fetch(
-        `http://localhost:5001/api/trainers/${trainerId}/meal-plans`,
+        `${API_TRAINERS_URL}/${trainerId}/meal-plans`,
         {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -188,7 +189,7 @@ export const fetchWallet = createAsyncThunk(
   'trainer/fetchWallet',
   async (trainerId, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/${trainerId}`);
+      const response = await fetch(`${API_TRAINERS_URL}/${trainerId}`);
       const data = await response.json();
       return data.wallet;
     } catch (error) {
@@ -201,10 +202,13 @@ export const requestPayout = createAsyncThunk(
   'trainer/requestPayout',
   async (trainerId, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/request-payout/${trainerId}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-      });
+      const response = await fetch(
+        `${API_TRAINERS_URL}/request-payout/${trainerId}`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+        },
+      );
 
       const data = await response.json();
       return data.payoutAmount;
@@ -218,7 +222,7 @@ export const fetchGlobalFeed = createAsyncThunk(
   'trainer/fetchGlobalFeed',
   async (_, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/feed`);
+      const response = await fetch(`${API_TRAINERS_URL}/feed`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -251,7 +255,7 @@ export const fetchTrainerById = createAsyncThunk(
   'trainer/fetchTrainerById',
   async (trainerId: string, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/${trainerId}`);
+      const response = await fetch(`${API_TRAINERS_URL}/${trainerId}`);
       const data = await response.json();
       if (!response.ok)
         throw new Error(data.msg || 'Greška pri dohvatanju trenera');

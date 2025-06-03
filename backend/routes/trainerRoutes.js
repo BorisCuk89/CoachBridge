@@ -36,6 +36,7 @@ router.get('/', async (req, res) => {
 
 // Dodaj trenera
 router.post('/register', async (req, res) => {
+  console.log('REQ.BODY:', req.body);
   try {
     const {
       name,
@@ -44,6 +45,7 @@ router.post('/register', async (req, res) => {
       title,
       description,
       profileImage,
+      introVideo,
       certificates,
       role,
     } = req.body;
@@ -66,6 +68,7 @@ router.post('/register', async (req, res) => {
       title,
       description,
       profileImage,
+      introVideo,
       role,
       certificates: certificates || [],
       rating: 0,
