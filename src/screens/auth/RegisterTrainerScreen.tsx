@@ -112,30 +112,65 @@ const RegisterTrainerScreen = ({navigation}) => {
   };
 
   const pickCertificates = async () => {
-    try {
-      setIsUploadingCertificates(true);
-      const results = await DocumentPicker.pickMultiple({
-        type: ['image/*', 'application/pdf'],
-      });
+    Alert.alert('Izaberi opciju', 'Dodaj sertifikate preko:', [
+      {
+        text: 'Kamera',
+        onPress: async () => {
+          try {
+            setIsUploadingCertificates(true);
+            const result = await launchCamera({mediaType: 'photo'});
 
-      const uploaded = await Promise.all(
-        results.map(async doc => {
-          const url = await uploadFile({
-            uri: doc.uri,
-            name: doc.name,
-            type: doc.type,
-          });
-          return url;
-        }),
-      );
-      setCertificates(uploaded);
-    } catch (err) {
-      if (!DocumentPicker.isCancel(err)) {
-        Alert.alert('Greška', 'Greška pri odabiru fajlova.');
-      }
-    } finally {
-      setIsUploadingCertificates(false);
-    }
+            if (result.assets?.length) {
+              const {uri, fileName: name, type} = result.assets[0];
+              const url = await uploadFile({
+                uri,
+                name: name || 'image.jpg',
+                type: type || 'image/jpeg',
+              });
+              setCertificates(prev => [...prev, url]);
+            }
+          } catch (e) {
+            Alert.alert('Greška', 'Neuspešno slikanje sertifikata.');
+          } finally {
+            setIsUploadingCertificates(false);
+          }
+        },
+      },
+      {
+        text: 'Galerija / Fajlovi',
+        onPress: async () => {
+          try {
+            setIsUploadingCertificates(true);
+            const results = await DocumentPicker.pick({
+              type: [DocumentPicker.types.images, DocumentPicker.types.pdf],
+              allowMultiSelection: true,
+            });
+
+            const uploaded = await Promise.all(
+              results.map(async doc => {
+                const url = await uploadFile({
+                  uri: doc.uri,
+                  name: doc.name,
+                  type: doc.type,
+                });
+                return url;
+              }),
+            );
+            setCertificates(prev => [...prev, ...uploaded]);
+          } catch (err) {
+            if (!DocumentPicker.isCancel(err)) {
+              Alert.alert('Greška', 'Greška pri odabiru fajlova.');
+            }
+          } finally {
+            setIsUploadingCertificates(false);
+          }
+        },
+      },
+      {
+        text: 'Otkaži',
+        style: 'cancel',
+      },
+    ]);
   };
 
   const handleRegister = async () => {
@@ -237,15 +272,15 @@ const RegisterTrainerScreen = ({navigation}) => {
               {isUploadingProfileImage ? (
                 <ActivityIndicator size="small" color="#1b1a1a" />
               ) : profileImage ? (
-                <Image
-                  source={{uri: profileImage}}
-                  style={{
-                    width: 100,
-                    height: 100,
-                    borderRadius: 8,
-                    marginBottom: 10,
-                  }}
-                />
+                <View style={{alignItems: 'flex-start', marginBottom: 10}}>
+                  <Image
+                    source={{uri: profileImage}}
+                    style={{width: 100, height: 100, borderRadius: 8}}
+                  />
+                  <TouchableOpacity onPress={() => setProfileImage('')}>
+                    <Text style={{color: 'red', marginTop: 4}}>Obriši</Text>
+                  </TouchableOpacity>
+                </View>
               ) : null}
             </TouchableOpacity>
 
@@ -254,9 +289,18 @@ const RegisterTrainerScreen = ({navigation}) => {
               {isUploadingIntroVideo ? (
                 <ActivityIndicator size="small" color="#1b1a1a" />
               ) : (
-                <Text style={{color: '#1b1a1a', fontSize: 12}}>
-                  {introVideo ? '✅ Video dodat' : 'Nema videa'}
-                </Text>
+                <>
+                  <Text style={{color: '#1b1a1a', fontSize: 12}}>
+                    {introVideo ? '✅ Video dodat' : 'Nema videa'}
+                  </Text>
+                  {introVideo ? (
+                    <TouchableOpacity onPress={() => setIntroVideo('')}>
+                      <Text style={{color: 'red', marginTop: 4}}>
+                        Obriši video
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null}
+                </>
               )}
             </TouchableOpacity>
 
@@ -270,6 +314,27 @@ const RegisterTrainerScreen = ({navigation}) => {
                 </Text>
               )}
             </TouchableOpacity>
+            {certificates.map((cert, index) => (
+              <View
+                key={index}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginVertical: 4,
+                }}>
+                <Text
+                  numberOfLines={1}
+                  style={{flex: 1, color: '#1b1a1a', fontSize: 12}}>
+                  {cert.split('/').pop()}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    setCertificates(prev => prev.filter((_, i) => i !== index));
+                  }}>
+                  <Text style={{color: 'red', marginLeft: 10}}>Obriši</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
           </View>
 
           {error && <Text style={styles.errorText}>{error}</Text>}
