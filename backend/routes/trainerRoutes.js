@@ -129,7 +129,6 @@ router.post('/:trainerId/training-packages', async (req, res) => {
       return res.status(404).json({msg: 'Trener nije pronađen'});
     }
 
-    // 📌 Provera da li su svi neophodni podaci poslati
     if (
       !title ||
       !description ||
@@ -144,9 +143,10 @@ router.post('/:trainerId/training-packages', async (req, res) => {
         .json({msg: 'Svi podaci su obavezni, uključujući barem jedan video'});
     }
 
-    // 📌 Provera da li svaki video ima title i videoUrl
+    // ✅ Nova struktura videa
     const validatedVideos = videos.map(video => ({
-      title: video.title || 'Untitled Video',
+      title: video.title?.trim() || 'Untitled Video',
+      description: video.description?.trim() || '',
       videoUrl: video.videoUrl || '',
     }));
 
@@ -154,13 +154,19 @@ router.post('/:trainerId/training-packages', async (req, res) => {
       return res.status(400).json({msg: 'Svaki video mora imati URL'});
     }
 
+    if (validatedVideos.some(video => !video.title || !video.description)) {
+      return res
+        .status(400)
+        .json({msg: 'Svaki video mora imati naslov i opis'});
+    }
+
     const newPackage = {
       title,
       description,
       price,
-      coverImage, // ✅ Cover slika
-      introVideo, // ✅ Intro video
-      videos: validatedVideos, // 📌 Čistimo podatke i obezbeđujemo da nisu prazni
+      coverImage,
+      introVideo,
+      videos: validatedVideos,
       createdAt: new Date(),
     };
 

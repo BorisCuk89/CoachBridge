@@ -15,6 +15,11 @@ interface FeedItem {
 }
 
 // 📌 Interfejs za trening pakete i planove ishrane
+interface TrainingVideo {
+  title: string;
+  description: string;
+  videoUrl: string;
+}
 interface TrainingPackage {
   _id: string;
   title: string;
@@ -22,7 +27,7 @@ interface TrainingPackage {
   price: number;
   coverImage: string;
   introVideo: string;
-  videos: string[];
+  videos: TrainingVideo[];
 }
 
 interface MealPlan {
@@ -102,7 +107,7 @@ export const addTrainingPackage = createAsyncThunk(
       price: number;
       coverImage: string;
       introVideo: string;
-      videos: {videoUrl: string; description: string}[];
+      videos: {title: string; description: string; videoUrl: string}[];
     },
     thunkAPI,
   ) => {

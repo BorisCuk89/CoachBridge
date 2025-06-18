@@ -29,6 +29,7 @@ const TrainerSchema = new mongoose.Schema(
         videos: [
           {
             title: {type: String, required: true}, // Naziv videa
+            description: {type: String, required: true}, // ➕ Opis videa
             videoUrl: {type: String, required: true}, // URL videa
           },
         ],
